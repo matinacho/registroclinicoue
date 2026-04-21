@@ -1,0 +1,3247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro Clínico · Urgencias</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f1;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #d8d6ce;
+    --border-light: #eae9e3;
+    --text: #1a1917;
+    --text-2: #5a5852;
+    --text-3: #9a9890;
+    --accent: #1a4a8a;
+    --accent-light: #e8eef7;
+    --accent-mid: #3366aa;
+    --red: #c0392b;
+    --red-light: #fdf0ee;
+    --red-mid: #e05a4a;
+    --green: #2e7d5e;
+    --green-light: #eaf4f0;
+    --amber: #b8620a;
+    --amber-light: #fef3e8;
+    --tag-bg: #e8eef7;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  #header {
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    padding: 14px 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .header-brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--text-3);
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-right: 24px;
+    border-right: 1px solid var(--border);
+  }
+
+  .header-fields {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .header-field {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .header-field label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .header-field input, .header-field select {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .header-field input:focus, .header-field select:focus {
+    border-color: var(--accent-mid);
+  }
+
+  .header-field input[type="number"] { width: 64px; }
+
+  /* Mode toggle */
+  .mode-toggle {
+    display: flex;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-left: auto;
+  }
+
+  .mode-btn {
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-2);
+    transition: all 0.18s;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+
+  .mode-btn.box.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .mode-btn.ream.active {
+    background: var(--red);
+    color: #fff;
+  }
+
+  /* ── PROGRESS ── */
+  #progress-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 28px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .step-tab {
+    padding: 11px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    white-space: nowrap;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    user-select: none;
+  }
+
+  .step-tab:hover { color: var(--text-2); }
+  .step-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .step-tab.done { color: var(--green); }
+  .step-tab.done .step-num { background: var(--green); color: #fff; }
+
+  .step-num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--text-3);
+    font-size: 10px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.18s;
+  }
+
+  .step-tab.active .step-num { background: var(--accent); color: #fff; }
+
+  /* ── MAIN ── */
+  #main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  .step-panel { display: none; animation: fadeIn 0.2s ease; }
+  .step-panel.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+
+  .step-header {
+    margin-bottom: 22px;
+  }
+
+  .step-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  /* ── FORM ELEMENTS ── */
+  .field-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .field-group label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: 0.04em;
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
+    margin-bottom: 2px;
+  }
+
+  input[type="text"], input[type="number"], select, textarea {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 11px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(51,102,170,0.1);
+  }
+
+  textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+  /* Radio pills */
+  .pill-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .pill-group input[type="radio"],
+  .pill-group input[type="checkbox"] { display: none; }
+
+  .pill-group label {
+    padding: 5px 13px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-2);
+    background: var(--bg);
+    user-select: none;
+  }
+
+  .pill-group input[type="radio"]:checked + label,
+  .pill-group input[type="checkbox"]:checked + label {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* Checkbox grid */
+  .check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+    background: var(--bg);
+    transition: all 0.12s;
+    user-select: none;
+  }
+
+  .check-item:hover { border-color: var(--border); background: var(--surface2); }
+  .check-item.checked { border-color: var(--accent-mid); background: var(--accent-light); }
+
+  .check-item input[type="checkbox"] { display: none; }
+
+  .check-box {
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.12s;
+    background: var(--surface);
+  }
+
+  .check-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check-box::after {
+    content: '';
+    width: 8px; height: 5px;
+    border-left: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+    display: none;
+  }
+
+  .check-item.checked .check-box::after { display: block; }
+
+  .check-item span { font-size: 12.5px; color: var(--text); }
+
+  /* Quick normal checkbox */
+  .quick-normal {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .quick-normal input { display: none; }
+
+  .qn-box {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--green);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+
+  .quick-normal.checked .qn-box { background: var(--green); }
+
+  .qn-box::after {
+    content: '';
+    width: 8px; height: 5px;
+    border-left: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+    display: none;
+  }
+
+  .quick-normal.checked .qn-box::after { display: block; }
+  .quick-normal span { font-size: 12px; color: var(--green); font-weight: 500; }
+
+  /* Toggle switch */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+  }
+
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-switch {
+    width: 36px; height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch::after {
+    content: '';
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .toggle-switch.on { background: var(--accent); }
+  .toggle-switch.on::after { transform: translateX(16px); }
+
+  .toggle-label { font-size: 13px; color: var(--text); font-weight: 500; }
+  .toggle-desc { font-size: 11px; color: var(--text-3); margin-left: auto; }
+
+  /* Section divider */
+  .section-divider {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin: 18px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-light);
+  }
+
+  /* Vitals grid */
+  .vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .vital-field { display: flex; flex-direction: column; gap: 4px; }
+
+  .vital-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .vital-unit {
+    font-size: 10px;
+    color: var(--text-3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ABCDE */
+  .abcde-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .abcde-header {
+    padding: 10px 14px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .abcde-letter {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .abcde-letter.red { background: var(--red); }
+
+  .abcde-title { font-size: 13px; font-weight: 500; flex: 1; }
+  .abcde-subtitle { font-size: 11px; color: var(--text-3); }
+
+  .abcde-body {
+    padding: 14px;
+    border-top: 1px solid var(--border-light);
+    display: none;
+  }
+
+  .abcde-body.open { display: block; }
+
+  /* EVA slider */
+  .eva-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--green) 0%, var(--amber) 50%, var(--red) 100%);
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  .eva-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    min-width: 28px;
+    text-align: center;
+    color: var(--accent);
+  }
+
+  .eva-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-3);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Sistema toggles */
+  .sistema-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    background: var(--bg);
+  }
+
+  .sistema-toggle.on {
+    border-color: var(--accent-mid);
+    background: var(--accent-light);
+  }
+
+  .sistema-toggle input { display: none; }
+
+  .st-check {
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+
+  .sistema-toggle.on .st-check { background: var(--accent); border-color: var(--accent); }
+
+  .st-check::after {
+    content: '';
+    width: 7px; height: 4px;
+    border-left: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+    display: none;
+  }
+
+  .sistema-toggle.on .st-check::after { display: block; }
+  .sistema-toggle span { font-size: 12.5px; font-weight: 500; }
+
+  .sistemas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .sistema-block {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  .sistema-block.active { display: block; }
+
+  .sistema-block-header {
+    padding: 10px 14px;
+    background: var(--surface2);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sistema-block-body { padding: 12px 14px; }
+
+  /* Nav buttons */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: var(--accent-mid); }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { background: var(--surface2); }
+
+  .btn-danger {
+    background: var(--red-light);
+    color: var(--red);
+    border: 1px solid #f0c0bb;
+  }
+
+  .btn-danger:hover { background: #fce0dc; }
+
+  .btn-green {
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    padding: 11px 28px;
+  }
+
+  .btn-green:hover { background: #256b4f; }
+
+  /* Nota preview */
+  #nota-preview {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    min-height: 200px;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  .copy-success {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .copy-success.show { display: flex; }
+
+  /* Mode badge */
+  .mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .mode-badge.box { background: var(--accent-light); color: var(--accent); }
+  .mode-badge.ream { background: var(--red-light); color: var(--red); }
+
+  /* Collapsible optional section */
+  .optional-section {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .optional-header {
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--bg);
+    transition: background 0.15s;
+  }
+
+  .optional-header:hover { background: var(--surface2); }
+
+  .optional-header .toggle-switch { flex-shrink: 0; }
+
+  .optional-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+  }
+
+  .optional-body {
+    display: none;
+    padding: 16px 18px;
+    background: var(--surface);
+    border-top: 1px solid var(--border-light);
+  }
+
+  .optional-body.open { display: block; }
+
+  /* Segmento examen */
+  .segmento-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .segmento-header {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+  }
+
+  .segmento-toggle {
+    width: 30px; height: 17px;
+    background: var(--border);
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .segmento-toggle::after {
+    content: '';
+    width: 11px; height: 11px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+
+  .segmento-toggle.on { background: var(--accent); }
+  .segmento-toggle.on::after { transform: translateX(13px); }
+
+  .segmento-name { font-size: 13px; font-weight: 500; flex: 1; }
+
+  .segmento-body {
+    display: none;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border-light);
+    background: var(--surface);
+  }
+
+  .segmento-body.open { display: block; }
+
+  /* Tag */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--tag-bg);
+    color: var(--accent);
+    margin-left: 6px;
+  }
+
+  .tag.optional { background: var(--amber-light); color: var(--amber); }
+
+  /* GCS */
+  .gcs-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .gcs-total {
+    padding: 8px 14px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    text-align: center;
+    min-width: 70px;
+  }
+
+  .gcs-total-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .gcs-total-label {
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Info box */
+  .info-box {
+    background: var(--accent-light);
+    border: 1px solid #c8d8ef;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .warn-box {
+    background: var(--red-light);
+    border: 1px solid #f0c0bb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--red);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Intervencion chips */
+  .interv-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .interv-chip {
+    padding: 4px 11px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+    background: var(--bg);
+    color: var(--text-2);
+  }
+
+  .interv-chip.selected {
+    background: var(--red-light);
+    border-color: var(--red-mid);
+    color: var(--red);
+    font-weight: 500;
+  }
+
+  /* ── APP TABS ── */
+  #app-tabs {
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    gap: 0;
+  }
+
+  .app-tab {
+    padding: 13px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    color: var(--text-3);
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+  }
+
+  .app-tab:hover { color: var(--text-2); }
+  .app-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── TREATMENT TABLE ── */
+  .tto-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  .tto-table th {
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .tto-table td {
+    padding: 5px 6px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+  }
+
+  .tto-table input, .tto-table select {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 7px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .tto-table input:focus, .tto-table select:focus {
+    border-color: var(--accent-mid);
+  }
+
+  .tto-del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-3);
+    font-size: 15px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.12s;
+  }
+
+  .tto-del:hover { color: var(--red); background: var(--red-light); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="header-brand">Registro Clínico<br>Urgencias</div>
+  <div class="header-fields">
+    <div class="header-field">
+      <label>Sexo</label>
+      <select id="h-sexo">
+        <option value="">—</option>
+        <option>Masculino</option>
+        <option>Femenino</option>
+        <option>No binario</option>
+      </select>
+    </div>
+    <div class="header-field">
+      <label>Edad</label>
+      <input type="number" id="h-edad" min="0" max="120" placeholder="0" style="width:60px">
+      <select id="h-edad-unit">
+        <option>años</option>
+        <option>meses</option>
+      </select>
+    </div>
+    <div class="header-field">
+      <label>Ingreso</label>
+      <select id="h-ingreso">
+        <option value="">—</option>
+        <option>Por sus medios</option>
+        <option>Traído por SAMU</option>
+        <option>Traído por familiares</option>
+        <option>Traído por terceros</option>
+        <option>Traslado desde otro centro</option>
+        <option>Otro</option>
+      </select>
+    </div>
+  </div>
+  <div class="mode-toggle">
+    <button class="mode-btn box active" onclick="setMode('box')">📦 Box</button>
+    <button class="mode-btn ream" onclick="setMode('ream')">🔴 Reanimación</button>
+  </div>
+</div>
+
+<!-- APP TABS -->
+<div id="app-tabs">
+  <button class="app-tab active" id="tab-ficha" onclick="switchApp('ficha')">📋 Ficha de Ingreso</button>
+  <button class="app-tab" id="tab-evol" onclick="switchApp('evol')">📝 Notas Evolutivas</button>
+</div>
+
+<!-- PROGRESS (ficha only) -->
+<div id="progress-bar"></div>
+
+<!-- MAIN FICHA -->
+<div id="main">
+
+  <!-- PASO 1: HCA -->
+  <div class="step-panel" id="step-0">
+    <div class="step-header">
+      <div class="step-title">Historia Clínica Actual</div>
+      <div class="step-desc">Caracterización del motivo de consulta mediante OPQRST y síntomas acompañantes.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">📝</div> Motivo de consulta</div>
+      <div class="field-group">
+        <textarea id="motivo" placeholder="Descripción breve del motivo de consulta..." rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🕐</div> O — Onset / Inicio</div>
+      <div class="field-hint">¿Cuándo comenzó el cuadro? ¿Cómo fue el inicio?</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Tiempo de evolución</label>
+          <div style="display:flex; gap:8px;">
+            <input type="number" id="onset-tiempo" placeholder="Ej: 3" style="width:80px">
+            <select id="onset-unidad">
+              <option>minutos</option>
+              <option>horas</option>
+              <option>días</option>
+              <option>semanas</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Forma de inicio</label>
+          <div class="pill-group">
+            <input type="radio" name="onset-forma" id="of1" value="brusco"><label for="of1">Brusco</label>
+            <input type="radio" name="onset-forma" id="of2" value="gradual"><label for="of2">Gradual</label>
+            <input type="radio" name="onset-forma" id="of3" value="progresivo"><label for="of3">Progresivo</label>
+          </div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Episodios previos similares</label>
+        <div class="pill-group">
+          <input type="radio" name="episodios" id="ep1" value="no"><label for="ep1">No</label>
+          <input type="radio" name="episodios" id="ep2" value="si"><label for="ep2">Sí</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">💊</div> P — Paliativo / Provocador</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>¿Qué lo mejora?</label>
+          <input type="text" id="paliativo" placeholder="Reposo, medicación, posición...">
+        </div>
+        <div class="field-group">
+          <label>¿Qué lo empeora?</label>
+          <input type="text" id="provocador" placeholder="Esfuerzo, movimiento, alimentos...">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🔍</div> Q — Calidad del síntoma</div>
+      <div class="field-hint">Seleccione los que apliquen</div>
+      <div class="check-grid" id="calidad-grid">
+        <!-- populated by JS -->
+      </div>
+      <div class="field-group" style="margin-top:10px;">
+        <label>Otro</label>
+        <input type="text" id="calidad-otro" placeholder="Descripción libre...">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">➡️</div> R — Irradiación</div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="pill-group">
+            <input type="radio" name="irradia" id="ir1" value="no"><label for="ir1">No irradia</label>
+            <input type="radio" name="irradia" id="ir2" value="si"><label for="ir2">Sí irradia</label>
+          </div>
+        </div>
+        <div class="field-group" id="irradia-destino-wrap" style="display:none">
+          <label>¿Hacia dónde?</label>
+          <input type="text" id="irradia-destino" placeholder="Brazo izquierdo, mandíbula...">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">📊</div> S — Severidad</div>
+      <div id="eva-hca">
+        <div class="eva-row">
+          <span style="font-size:11px;color:var(--text-3)">Sin dolor</span>
+          <input type="range" id="eva-hca-slider" min="0" max="10" value="0" oninput="updateEVA('hca')">
+          <span style="font-size:11px;color:var(--text-3)">Máximo</span>
+          <div class="eva-value" id="eva-hca-val">0</div>
+        </div>
+        <div class="eva-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">⏱️</div> T — Tiempo / Curso</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Curso temporal</label>
+          <div class="pill-group">
+            <input type="radio" name="curso" id="cu1" value="continuo"><label for="cu1">Continuo</label>
+            <input type="radio" name="curso" id="cu2" value="intermitente"><label for="cu2">Intermitente</label>
+            <input type="radio" name="curso" id="cu3" value="en aumento"><label for="cu3">En aumento</label>
+            <input type="radio" name="curso" id="cu4" value="en remisión"><label for="cu4">En remisión</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">⚡</div> Síntomas acompañantes</div>
+      <div class="field-hint">Seleccione los presentes</div>
+
+      <div class="section-divider">Generales</div>
+      <div class="check-grid" id="sint-generales"></div>
+      <div class="section-divider">Cardiorrespiratorios</div>
+      <div class="check-grid" id="sint-cardio"></div>
+      <div class="section-divider">Digestivos</div>
+      <div class="check-grid" id="sint-digestivo"></div>
+      <div class="section-divider">Neurológicos</div>
+      <div class="check-grid" id="sint-neuro"></div>
+      <div class="section-divider">Otros</div>
+      <div class="check-grid" id="sint-otros"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">💬</div> Detalles adicionales</div>
+      <textarea id="hca-libre" placeholder="Contexto adicional, antecedentes del episodio, cronología relevante..." rows="3"></textarea>
+    </div>
+
+    <div class="nav-row">
+      <div></div>
+      <button class="btn btn-primary" onclick="goStep(1)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 2: ANAMNESIS REMOTA -->
+  <div class="step-panel" id="step-1">
+    <div class="step-header">
+      <div class="step-title">Anamnesis Remota</div>
+      <div class="step-desc">Antecedentes relevantes del paciente.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🏥</div> Antecedentes médicos</div>
+      <label class="quick-normal" onclick="toggleQuickNormal(this, 'ant-med-none')">
+        <input type="checkbox" id="ant-med-none">
+        <div class="qn-box"></div>
+        <span>Sin antecedentes médicos conocidos</span>
+      </label>
+      <div id="ant-med-body">
+        <div class="check-grid" id="antmed-grid"></div>
+        <div class="field-group" style="margin-top:10px">
+          <label>Otros</label>
+          <input type="text" id="ant-med-otros" placeholder="Especificar...">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🔪</div> Antecedentes quirúrgicos</div>
+      <label class="quick-normal" onclick="toggleQuickNormal(this, 'ant-qx-none')">
+        <input type="checkbox" id="ant-qx-none">
+        <div class="qn-box"></div>
+        <span>Sin antecedentes quirúrgicos</span>
+      </label>
+      <div class="field-group" style="margin-top:8px" id="ant-qx-body">
+        <textarea id="ant-qx" placeholder="Especificar intervenciones previas..." rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">⚠️</div> Alergias</div>
+      <label class="quick-normal" onclick="toggleQuickNormal(this, 'alergias-none')">
+        <input type="checkbox" id="alergias-none">
+        <div class="qn-box"></div>
+        <span>Sin alergias conocidas</span>
+      </label>
+      <div class="field-group" style="margin-top:8px" id="alergias-body">
+        <input type="text" id="alergias" placeholder="Fármaco / sustancia y tipo de reacción...">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🚬</div> Hábitos tóxicos</div>
+
+      <div class="section-divider">Tabaquismo</div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="pill-group">
+            <input type="radio" name="tabaco" id="tab1" value="no"><label for="tab1">No</label>
+            <input type="radio" name="tabaco" id="tab2" value="ex-fumador"><label for="tab2">Ex-fumador</label>
+            <input type="radio" name="tabaco" id="tab3" value="activo"><label for="tab3">Activo</label>
+          </div>
+        </div>
+        <div class="field-group" id="tabaco-detalle" style="display:none">
+          <label>Cigarrillos/día</label>
+          <input type="number" id="tabaco-cant" placeholder="Ej: 10" style="width:80px">
+        </div>
+      </div>
+
+      <div class="section-divider">Alcohol</div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="pill-group">
+            <input type="radio" name="alcohol" id="alc1" value="no"><label for="alc1">No refiere</label>
+            <input type="radio" name="alcohol" id="alc2" value="ocasional"><label for="alc2">Ocasional</label>
+            <input type="radio" name="alcohol" id="alc3" value="habitual"><label for="alc3">Habitual</label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Detalle</label>
+          <input type="text" id="alcohol-detalle" placeholder="Frecuencia, tipo...">
+        </div>
+      </div>
+
+      <div class="section-divider">Drogas</div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="pill-group">
+            <input type="radio" name="drogas" id="dr1" value="no"><label for="dr1">No refiere</label>
+            <input type="radio" name="drogas" id="dr2" value="si"><label for="dr2">Refiere consumo</label>
+          </div>
+        </div>
+        <div class="field-group" id="drogas-detalle" style="display:none">
+          <label>Especificar</label>
+          <input type="text" id="drogas-cual" placeholder="Sustancia, frecuencia...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Medicamentos (toggle) -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleOptional('medicamentos')">
+        <div class="toggle-switch" id="medicamentos-sw"></div>
+        <div class="optional-title">Medicamentos habituales <span class="tag optional">Opcional</span></div>
+      </div>
+      <div class="optional-body" id="medicamentos-body">
+        <textarea id="medicamentos" placeholder="Listado de medicamentos, dosis y frecuencia..." rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- Gineco-obstétrico (toggle) -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleOptional('gineco')">
+        <div class="toggle-switch" id="gineco-sw"></div>
+        <div class="optional-title">Antecedentes gineco-obstétricos <span class="tag optional">Opcional</span></div>
+      </div>
+      <div class="optional-body" id="gineco-body">
+        <div class="field-row">
+          <div class="field-group">
+            <label>Gestas</label>
+            <input type="number" id="gin-g" placeholder="G" min="0" style="width:70px">
+          </div>
+          <div class="field-group">
+            <label>Partos</label>
+            <input type="number" id="gin-p" placeholder="P" min="0" style="width:70px">
+          </div>
+          <div class="field-group">
+            <label>Abortos</label>
+            <input type="number" id="gin-a" placeholder="A" min="0" style="width:70px">
+          </div>
+          <div class="field-group">
+            <label>Cesáreas</label>
+            <input type="number" id="gin-c" placeholder="C" min="0" style="width:70px">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label>FUR</label>
+            <input type="text" id="gin-fur" placeholder="Fecha última regla...">
+          </div>
+          <div class="field-group">
+            <label>MAC</label>
+            <input type="text" id="gin-mac" placeholder="Método anticonceptivo...">
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Otros</label>
+          <input type="text" id="gin-otros" placeholder="Menopausia, embarazo en curso...">
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goStep(0)">← Anterior</button>
+      <button class="btn btn-primary" onclick="goStep(2)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 3: REVISIÓN POR SISTEMAS -->
+  <div class="step-panel" id="step-2">
+    <div class="step-header">
+      <div class="step-title">Revisión por Sistemas <span class="tag optional">Opcional</span></div>
+      <div class="step-desc">Active esta sección solo si es relevante para el caso.</div>
+    </div>
+
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleOptional('rps')">
+        <div class="toggle-switch" id="rps-sw"></div>
+        <div class="optional-title">Activar revisión por sistemas</div>
+      </div>
+      <div class="optional-body" id="rps-body">
+        <div class="info-box">ℹ️ Seleccione los sistemas a revisar. Solo se incluirán en la nota los sistemas activados.</div>
+        <div class="sistemas-grid" id="sistemas-selector"></div>
+        <div id="sistemas-blocks"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goStep(1)">← Anterior</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 4: EVALUACIÓN PRIMARIA -->
+  <div class="step-panel" id="step-3">
+    <div class="step-header">
+      <div class="step-title">Evaluación Primaria</div>
+      <div class="step-desc" id="ep-desc">Evaluación inicial del paciente.</div>
+    </div>
+
+    <!-- 1. Aspecto general -->
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">👤</div> 1. Aspecto general</div>
+      <div class="field-row" style="align-items:center">
+        <div class="field-group">
+          <div class="pill-group">
+            <input type="radio" name="aspecto" id="asp1" value="buen"><label for="asp1">Buen estado general</label>
+            <input type="radio" name="aspecto" id="asp2" value="regular"><label for="asp2">Regular estado general</label>
+            <input type="radio" name="aspecto" id="asp3" value="mal"><label for="asp3">Mal estado general</label>
+          </div>
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:10px">
+        <label>Descripción adicional</label>
+        <input type="text" id="aspecto-libre" placeholder="Hemodinámicamente estable, álgido, diaforético...">
+      </div>
+    </div>
+
+    <!-- 2. Signos vitales -->
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">📡</div> 2. Signos vitales</div>
+      <div class="vitals-grid">
+        <div class="vital-field">
+          <div class="vital-label">FC <span class="vital-unit">lpm</span></div>
+          <input type="number" id="sv-fc" placeholder="—">
+        </div>
+        <div class="vital-field">
+          <div class="vital-label">PA sistólica <span class="vital-unit">mmHg</span></div>
+          <input type="number" id="sv-pas" placeholder="—">
+        </div>
+        <div class="vital-field">
+          <div class="vital-label">PA diastólica <span class="vital-unit">mmHg</span></div>
+          <input type="number" id="sv-pad" placeholder="—">
+        </div>
+        <div class="vital-field">
+          <div class="vital-label">FR <span class="vital-unit">rpm</span></div>
+          <input type="number" id="sv-fr" placeholder="—">
+        </div>
+        <div class="vital-field">
+          <div class="vital-label">T° <span class="vital-unit">°C</span></div>
+          <input type="number" id="sv-temp" placeholder="—" step="0.1">
+        </div>
+        <div class="vital-field">
+          <div class="vital-label">SpO₂ <span class="vital-unit">%</span></div>
+          <input type="number" id="sv-spo2" placeholder="—" max="100">
+        </div>
+        <div class="vital-field">
+          <div class="vital-label">HGT <span class="vital-unit">mg/dL</span></div>
+          <input type="number" id="sv-hgt" placeholder="—">
+        </div>
+      </div>
+      <div class="section-divider" style="margin-top:16px">Soporte de oxígeno</div>
+      <div class="field-row" style="align-items:center; flex-wrap:wrap; gap:12px;">
+        <div class="field-group" style="min-width:0; flex:0 0 auto;">
+          <div class="pill-group">
+            <input type="radio" name="o2-uso" id="o2n" value="no"><label for="o2n">Sin O₂ adicional</label>
+            <input type="radio" name="o2-uso" id="o2y" value="si"><label for="o2y">Con O₂ adicional</label>
+          </div>
+        </div>
+        <div id="o2-detalle-wrap" style="display:none; display:flex; gap:12px; flex-wrap:wrap; flex:1;">
+          <div class="field-group" style="min-width:140px;">
+            <label>Dispositivo</label>
+            <select id="o2-dispositivo">
+              <option value="">Seleccionar...</option>
+              <option>Cánula nasal</option>
+              <option>Mascarilla simple</option>
+              <option>Mascarilla con reservorio</option>
+              <option>Ventilación no invasiva (VNI)</option>
+              <option>Ventilación mecánica invasiva</option>
+              <option>Alto flujo (HFNC)</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="vital-field" style="min-width:90px;">
+            <div class="vital-label">Flujo <span class="vital-unit">L/min</span></div>
+            <input type="number" id="o2-flujo" placeholder="—" min="0" max="60">
+          </div>
+          <div class="vital-field" style="min-width:90px;">
+            <div class="vital-label">FiO₂ <span class="vital-unit">%</span></div>
+            <input type="number" id="o2-fio2" placeholder="—" min="21" max="100">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. EVA (condicional) -->
+    <div class="card" id="eva-ep-card">
+      <div class="card-title"><div class="card-title-icon">😣</div> 3. Escala de dolor (EVA)</div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <label class="quick-normal" onclick="toggleEVACard(this)" id="eva-ep-toggle">
+          <input type="checkbox" id="eva-ep-check">
+          <div class="qn-box"></div>
+          <span>Paciente refiere dolor</span>
+        </label>
+      </div>
+      <div id="eva-ep-slider-wrap" style="display:none">
+        <div class="eva-row">
+          <span style="font-size:11px;color:var(--text-3)">Sin dolor</span>
+          <input type="range" id="eva-ep-slider" min="0" max="10" value="0" oninput="updateEVA('ep')">
+          <span style="font-size:11px;color:var(--text-3)">Máximo</span>
+          <div class="eva-value" id="eva-ep-val">0</div>
+        </div>
+        <div class="eva-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+      </div>
+    </div>
+
+    <!-- 4. ABCDE -->
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon" id="abcde-icon">🔵</div> 4. ABCDE</div>
+      <div id="abcde-container"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goStep(2)">← Anterior</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 5: EXAMEN FÍSICO -->
+  <div class="step-panel" id="step-4">
+    <div class="step-header">
+      <div class="step-title">Examen Físico</div>
+      <div class="step-desc" id="ef-desc">Active los segmentos a explorar.</div>
+    </div>
+
+    <div id="ef-ream-note" style="display:none">
+      <div class="warn-box">🔴 Modo Reanimación: el examen físico segmentario es opcional. Active solo si es clínicamente relevante.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🔎</div> Segmentos a evaluar</div>
+      <div id="segmentos-container"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goStep(3)">← Anterior</button>
+      <button class="btn btn-primary" onclick="goStep(5)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 6: ESTUDIOS COMPLEMENTARIOS -->
+  <div class="step-panel" id="step-5">
+    <div class="step-header">
+      <div class="step-title">Estudios Complementarios</div>
+      <div class="step-desc">Ultrasonido clínico, ECG y exámenes externos. Todos opcionales.</div>
+    </div>
+
+    <!-- Ultrasonido -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleOptional('eco')">
+        <div class="toggle-switch" id="eco-sw"></div>
+        <div class="optional-title">🔊 Ultrasonido clínico <span class="tag optional">Opcional</span></div>
+      </div>
+      <div class="optional-body" id="eco-body">
+        <div class="info-box">ℹ️ Active las ventanas exploradas. Para cada una indique hallazgos o marque "Sin alteraciones".</div>
+        <div id="eco-ventanas"></div>
+      </div>
+    </div>
+
+    <!-- ECG -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleOptional('ecg')">
+        <div class="toggle-switch" id="ecg-sw"></div>
+        <div class="optional-title">❤️ Electrocardiograma <span class="tag optional">Opcional</span></div>
+      </div>
+      <div class="optional-body" id="ecg-body">
+        <div class="field-group">
+          <label>Interpretación del ECG</label>
+          <textarea id="ecg-texto" placeholder="Ritmo sinusal a X lpm, eje normal, sin alteraciones de la repolarización... / Fibrilación auricular con respuesta ventricular rápida, BRIHH, cambios isquémicos en..." rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exámenes externos -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleOptional('ext')">
+        <div class="toggle-switch" id="ext-sw"></div>
+        <div class="optional-title">📁 Exámenes externos <span class="tag optional">Opcional</span></div>
+      </div>
+      <div class="optional-body" id="ext-body">
+        <div class="field-group" style="margin-bottom:12px">
+          <label>Laboratorio</label>
+          <textarea id="ext-lab" placeholder="Hemograma: Hb 10 g/dL, leucocitos 12.000, plaquetas 220.000. PCR 45 mg/L..." rows="3"></textarea>
+        </div>
+        <div class="field-group" style="margin-bottom:12px">
+          <label>Imágenes</label>
+          <textarea id="ext-img" placeholder="Radiografía de tórax: cardiomegalia, sin infiltrados. TC de cráneo: sin lesiones agudas..." rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label>Otros</label>
+          <textarea id="ext-otros" placeholder="Otros resultados relevantes..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goStep(4)">← Anterior</button>
+      <button class="btn btn-primary" onclick="goStep(6)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 7: IMPRESIÓN Y PLAN -->
+  <div class="step-panel" id="step-6">
+    <div class="step-header">
+      <div class="step-title">Impresión Diagnóstica y Plan</div>
+      <div class="step-desc">Razonamiento clínico y conducta.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🧠</div> Impresión diagnóstica</div>
+      <textarea id="impresion" placeholder="Hipótesis diagnóstica principal..." rows="3"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">📋</div> Plan</div>
+      <textarea id="plan" placeholder="Indicaciones farmacológicas, exámenes solicitados, interconsultas, conducta y disposición..." rows="5"></textarea>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goStep(5)">← Anterior</button>
+      <button class="btn btn-primary" onclick="goStep(7)">Generar nota →</button>
+    </div>
+  </div>
+
+  <!-- PASO 8: NOTA CLÍNICA -->
+  <div class="step-panel" id="step-7">
+    <div class="step-header">
+      <div class="step-title">Nota Clínica</div>
+      <div class="step-desc">Revise el texto generado antes de copiar.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon">📄</div> Nota narrativa
+        <span id="mode-badge-nota" class="mode-badge box" style="margin-left:auto">📦 Box</span>
+      </div>
+      <div id="nota-preview"></div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:14px; flex-wrap:wrap; gap:10px;">
+        <div class="copy-success" id="copy-ok">✅ Copiado al portapapeles</div>
+        <div style="display:flex;gap:10px;margin-left:auto;">
+          <button class="btn btn-secondary" onclick="regenerarNota()">↺ Regenerar</button>
+          <button class="btn btn-green" onclick="copiarNota()">📋 Copiar al portapapeles</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goStep(6)">← Volver</button>
+      <button class="btn btn-danger" onclick="nuevaConsulta()">🗑 Nueva consulta</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- NOTAS EVOLUTIVAS PANEL -->
+<div id="evol-panel" style="display:none; max-width:860px; margin:0 auto; padding:28px 24px 80px;">
+
+  <!-- Historial -->
+  <div id="evol-historial-wrap" style="display:none; margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🕐</div> Notas de esta sesión</div>
+      <div id="evol-historial"></div>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <div id="evol-form">
+    <div class="step-header">
+      <div class="step-title">Nueva Nota Evolutiva</div>
+      <div class="step-desc">Active las secciones relevantes para este control.</div>
+    </div>
+
+    <!-- Sección 1: Estado clínico -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('estado')">
+        <div class="toggle-switch" id="estado-sw"></div>
+        <div class="optional-title">Estado clínico</div>
+      </div>
+      <div class="optional-body" id="estado-body">
+        <div class="section-divider">Curso clínico</div>
+        <div class="check-grid" id="evol-curso-grid"></div>
+        <div class="section-divider" style="margin-top:14px">Hallazgos específicos</div>
+        <div class="check-grid" id="evol-hallazgos-grid"></div>
+        <div class="field-group" style="margin-top:10px">
+          <label>Otros hallazgos</label>
+          <input type="text" id="evol-estado-otros" placeholder="Especificar...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 2: Signos vitales -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('evsv')">
+        <div class="toggle-switch" id="evsv-sw"></div>
+        <div class="optional-title">Signos vitales</div>
+      </div>
+      <div class="optional-body" id="evsv-body">
+        <div class="vitals-grid">
+          <div class="vital-field">
+            <div class="vital-label">FC <span class="vital-unit">lpm</span></div>
+            <input type="number" id="ev-fc" placeholder="—">
+          </div>
+          <div class="vital-field">
+            <div class="vital-label">PA sistólica <span class="vital-unit">mmHg</span></div>
+            <input type="number" id="ev-pas" placeholder="—">
+          </div>
+          <div class="vital-field">
+            <div class="vital-label">PA diastólica <span class="vital-unit">mmHg</span></div>
+            <input type="number" id="ev-pad" placeholder="—">
+          </div>
+          <div class="vital-field">
+            <div class="vital-label">FR <span class="vital-unit">rpm</span></div>
+            <input type="number" id="ev-fr" placeholder="—">
+          </div>
+          <div class="vital-field">
+            <div class="vital-label">T° <span class="vital-unit">°C</span></div>
+            <input type="number" id="ev-temp" placeholder="—" step="0.1">
+          </div>
+          <div class="vital-field">
+            <div class="vital-label">SpO₂ <span class="vital-unit">%</span></div>
+            <input type="number" id="ev-spo2" placeholder="—" max="100">
+          </div>
+          <div class="vital-field">
+            <div class="vital-label">HGT <span class="vital-unit">mg/dL</span></div>
+            <input type="number" id="ev-hgt" placeholder="—">
+          </div>
+        </div>
+        <div class="section-divider" style="margin-top:14px">Soporte de oxígeno</div>
+        <div class="field-row" style="flex-wrap:wrap; gap:12px; align-items:center;">
+          <div class="pill-group">
+            <input type="radio" name="ev-o2" id="ev-o2n" value="no"><label for="ev-o2n">Sin O₂ adicional</label>
+            <input type="radio" name="ev-o2" id="ev-o2y" value="si"><label for="ev-o2y">Con O₂ adicional</label>
+          </div>
+          <div id="ev-o2-detalle" style="display:none; display:flex; gap:12px; flex-wrap:wrap;">
+            <div class="field-group" style="min-width:140px">
+              <label>Dispositivo</label>
+              <select id="ev-o2-disp">
+                <option value="">Seleccionar...</option>
+                <option>Cánula nasal</option>
+                <option>Mascarilla simple</option>
+                <option>Mascarilla con reservorio</option>
+                <option>Ventilación no invasiva (VNI)</option>
+                <option>Ventilación mecánica invasiva</option>
+                <option>Alto flujo (HFNC)</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="vital-field" style="min-width:80px">
+              <div class="vital-label">Flujo <span class="vital-unit">L/min</span></div>
+              <input type="number" id="ev-o2-flujo" placeholder="—" min="0" max="60">
+            </div>
+            <div class="vital-field" style="min-width:80px">
+              <div class="vital-label">FiO₂ <span class="vital-unit">%</span></div>
+              <input type="number" id="ev-o2-fio2" placeholder="—" min="21" max="100">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 3: EVA -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('eveva')">
+        <div class="toggle-switch" id="eveva-sw"></div>
+        <div class="optional-title">Escala de dolor (EVA)</div>
+      </div>
+      <div class="optional-body" id="eveva-body">
+        <div class="eva-row">
+          <span style="font-size:11px;color:var(--text-3)">Sin dolor</span>
+          <input type="range" id="ev-eva-slider" min="0" max="10" value="0" oninput="document.getElementById('ev-eva-val').textContent=this.value">
+          <span style="font-size:11px;color:var(--text-3)">Máximo</span>
+          <div class="eva-value" id="ev-eva-val">0</div>
+        </div>
+        <div class="eva-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+      </div>
+    </div>
+
+    <!-- Sección 4: Evolución clínica -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('evolucion')">
+        <div class="toggle-switch" id="evolucion-sw"></div>
+        <div class="optional-title">Evolución clínica</div>
+      </div>
+      <div class="optional-body" id="evolucion-body">
+        <div class="field-group">
+          <div class="field-hint">¿Cómo evolucionó el paciente desde la última evaluación?</div>
+          <textarea id="ev-evolucion" placeholder="Descripción de la evolución del cuadro clínico..." rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 5: Respuesta al tratamiento -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('respuesta')">
+        <div class="toggle-switch" id="respuesta-sw"></div>
+        <div class="optional-title">Respuesta al tratamiento</div>
+      </div>
+      <div class="optional-body" id="respuesta-body">
+        <div class="field-group">
+          <div class="field-hint">¿Cómo respondió a las medidas instauradas?</div>
+          <textarea id="ev-respuesta" placeholder="Respuesta a analgesia, antibioterapia, hidratación..." rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 6: Examen físico dirigido -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('evef')">
+        <div class="toggle-switch" id="evef-sw"></div>
+        <div class="optional-title">Examen físico dirigido</div>
+      </div>
+      <div class="optional-body" id="evef-body">
+        <div id="ev-segmentos-container"></div>
+      </div>
+    </div>
+
+    <!-- Sección 7: Tratamientos -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('tto')">
+        <div class="toggle-switch" id="tto-sw"></div>
+        <div class="optional-title">Tratamientos</div>
+      </div>
+      <div class="optional-body" id="tto-body">
+        <div id="tto-tabla"></div>
+        <button class="btn btn-secondary" onclick="agregarFila()" style="margin-top:10px; font-size:12px;">+ Agregar fármaco / tratamiento</button>
+      </div>
+    </div>
+
+    <!-- Sección 8: Diagnóstico -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('evdx')">
+        <div class="toggle-switch" id="evdx-sw"></div>
+        <div class="optional-title">Diagnóstico</div>
+      </div>
+      <div class="optional-body" id="evdx-body">
+        <textarea id="ev-dx" placeholder="Diagnóstico o impresión diagnóstica actual..." rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- Sección 9: Plan -->
+    <div class="optional-section">
+      <div class="optional-header" onclick="toggleEvolSec('evplan')">
+        <div class="toggle-switch" id="evplan-sw"></div>
+        <div class="optional-title">Plan</div>
+      </div>
+      <div class="optional-body" id="evplan-body">
+        <textarea id="ev-plan" placeholder="Conducta, indicaciones, ajuste de tratamiento..." rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- Nota generada -->
+    <div class="card" id="evol-nota-card" style="display:none">
+      <div class="card-title"><div class="card-title-icon">📄</div> Nota evolutiva</div>
+      <div id="evol-nota-preview" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;font-family:'DM Mono',monospace;font-size:12.5px;line-height:1.7;white-space:pre-wrap;min-height:120px;max-height:400px;overflow-y:auto;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;flex-wrap:wrap;gap:10px;">
+        <div class="copy-success" id="evol-copy-ok">✅ Copiado al portapapeles</div>
+        <div style="display:flex;gap:10px;margin-left:auto;">
+          <button class="btn btn-secondary" onclick="generarNotaEvol()">↺ Regenerar</button>
+          <button class="btn btn-green" onclick="copiarNotaEvol()">📋 Copiar al portapapeles</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:20px; gap:12px;">
+      <button class="btn btn-secondary" onclick="limpiarEvol()">🗑 Limpiar formulario</button>
+      <button class="btn btn-primary" style="font-size:14px; padding:10px 24px;" onclick="generarNotaEvol()">Generar nota evolutiva</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentStep = 0;
+let currentMode = 'box'; // 'box' | 'ream'
+
+const STEPS = [
+  { label: 'HCA' },
+  { label: 'Anamnesis' },
+  { label: 'Rev. Sistemas' },
+  { label: 'Eval. Primaria' },
+  { label: 'Examen Físico' },
+  { label: 'Estudios' },
+  { label: 'Diagnóstico' },
+  { label: 'Nota Clínica' },
+];
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+function init() {
+  buildProgressBar();
+  buildCalidadGrid();
+  buildSintomasAcomp();
+  buildAntMedGrid();
+  buildSistemasSelector();
+  buildABCDE();
+  buildSegmentos();
+  buildEcoVentanas();
+  setupListeners();
+  goStep(0);
+}
+
+// ═══════════════════════════════════════════════════
+// PROGRESS BAR
+// ═══════════════════════════════════════════════════
+function buildProgressBar() {
+  const bar = document.getElementById('progress-bar');
+  bar.innerHTML = STEPS.map((s, i) => `
+    <div class="step-tab" id="tab-${i}" onclick="goStep(${i})">
+      <div class="step-num">${i+1}</div>
+      ${s.label}
+    </div>
+  `).join('');
+}
+
+function updateProgressBar() {
+  STEPS.forEach((_, i) => {
+    const tab = document.getElementById(`tab-${i}`);
+    tab.className = 'step-tab';
+    if (i < currentStep) tab.classList.add('done');
+    if (i === currentStep) tab.classList.add('active');
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function goStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`step-${n}`).classList.add('active');
+  currentStep = n;
+  updateProgressBar();
+  if (n === 7) generarNota();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════
+// MODE
+// ═══════════════════════════════════════════════════
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.mode-btn.${mode}`).classList.add('active');
+  updateModeUI();
+}
+
+function updateModeUI() {
+  const isReam = currentMode === 'ream';
+  document.getElementById('ep-desc').textContent = isReam
+    ? '🔴 Modo Reanimación — enfoque en ABCDE completo con intervenciones.'
+    : '📦 Modo Box — evaluación primaria resumida.';
+  document.getElementById('ef-desc').textContent = isReam
+    ? 'Modo Reanimación — seleccione segmentos si son clínicamente relevantes.'
+    : 'Active los segmentos a explorar según el caso.';
+  const efNote = document.getElementById('ef-ream-note');
+  efNote.style.display = isReam ? 'block' : 'none';
+  buildABCDE();
+}
+
+// ═══════════════════════════════════════════════════
+// CALIDAD GRID
+// ═══════════════════════════════════════════════════
+const CALIDADES = ['Opresivo','Punzante','Quemante','Sordo','Cólico','Pulsátil','Eléctrico','Urente','Pesado','Expansivo'];
+
+function buildCalidadGrid() {
+  const grid = document.getElementById('calidad-grid');
+  grid.innerHTML = CALIDADES.map(c => checkItem(`cal-${c}`, c)).join('');
+  grid.querySelectorAll('.check-item').forEach(el => el.addEventListener('click', () => toggleCheck(el)));
+}
+
+// ═══════════════════════════════════════════════════
+// SÍNTOMAS ACOMPAÑANTES
+// ═══════════════════════════════════════════════════
+const SINT = {
+  generales: ['Fiebre','Escalofríos','Sudoración','Astenia','Baja de peso','Anorexia'],
+  cardio: ['Disnea','Palpitaciones','Dolor torácico','Tos','Hemoptisis','Edema de extremidades','Ortopnea'],
+  digestivo: ['Náuseas','Vómitos','Diarrea','Constipación','Dolor abdominal','Rectorragia','Melena','Ictericia'],
+  neuro: ['Cefalea','Mareo / vértigo','Síncope','Debilidad focal','Alteración del lenguaje','Visión borrosa','Parestesias'],
+  otros: ['Disuria','Hematuria','Rash cutáneo','Artralgias','Mialgias','Prurito']
+};
+
+function buildSintomasAcomp() {
+  Object.entries(SINT).forEach(([key, items]) => {
+    const map = { generales:'generales', cardio:'cardio', digestivo:'digestivo', neuro:'neuro', otros:'otros' };
+    const el = document.getElementById(`sint-${map[key]||key}`);
+    if (el) {
+      el.innerHTML = items.map(s => checkItem(`sint-${key}-${s}`, s)).join('');
+      el.querySelectorAll('.check-item').forEach(c => c.addEventListener('click', () => toggleCheck(c)));
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// ANTECEDENTES MÉDICOS
+// ═══════════════════════════════════════════════════
+const ANTMED = ['Hipertensión arterial','Diabetes mellitus tipo 2','Diabetes mellitus tipo 1','Cardiopatía coronaria','Insuficiencia cardíaca','Fibrilación auricular','EPOC','Asma bronquial','Enfermedad renal crónica','Accidente cerebrovascular','Epilepsia','Hipotiroidismo','Hipertiroidismo','Dislipidemia','Obesidad','Cáncer en tratamiento','VIH','Artritis reumatoide','Lupus eritematoso sistémico'];
+
+function buildAntMedGrid() {
+  const grid = document.getElementById('antmed-grid');
+  grid.innerHTML = ANTMED.map(a => checkItem(`antmed-${a}`, a)).join('');
+  grid.querySelectorAll('.check-item').forEach(el => el.addEventListener('click', () => toggleCheck(el)));
+}
+
+// ═══════════════════════════════════════════════════
+// SISTEMAS
+// ═══════════════════════════════════════════════════
+const SISTEMAS = {
+  'General': ['Fiebre','Baja de peso','Astenia','Anorexia'],
+  'Cardiovascular': ['Disnea','Palpitaciones','Dolor precordial','Edema','Síncope','Ortopnea'],
+  'Respiratorio': ['Tos','Disnea','Hemoptisis','Sibilancias','Dolor pleurítico'],
+  'Digestivo': ['Náuseas','Vómitos','Diarrea','Constipación','Dolor abdominal','Rectorragia','Melena','Disfagia'],
+  'Neurológico': ['Cefalea','Mareo','Síncope','Debilidad focal','Trastorno del lenguaje','Convulsiones','Trastorno de memoria'],
+  'Genitourinario': ['Disuria','Polaquiuria','Hematuria','Incontinencia','Secreción uretral'],
+  'Musculoesquelético': ['Artralgia','Mialgia','Edema articular','Limitación de movilidad','Dolor lumbar'],
+  'Piel y fanéreos': ['Rash','Prurito','Lesiones cutáneas','Cambios en piel o cabello'],
+  'Endocrino': ['Poliuria','Polidipsia','Intolerancia al frío/calor','Cambio de peso'],
+  'Psiquiátrico': ['Alteración del ánimo','Ansiedad','Insomnio','Alucinaciones','Ideación suicida']
+};
+
+const SINT_NORMALES = {
+  'General': 'sin fiebre, sin variaciones ponderales significativas ni astenia de relevancia',
+  'Cardiovascular': 'sin disnea, palpitaciones ni edema',
+  'Respiratorio': 'sin tos, hemoptisis ni disnea',
+  'Digestivo': 'sin náuseas, vómitos ni alteración del tránsito intestinal',
+  'Neurológico': 'sin cefalea, déficit focal ni trastorno del nivel de consciencia',
+  'Genitourinario': 'sin síntomas urinarios de relevancia',
+  'Musculoesquelético': 'sin artralgia ni mialgia',
+  'Piel y fanéreos': 'sin lesiones cutáneas de relevancia',
+  'Endocrino': 'sin síntomas endocrinos',
+  'Psiquiátrico': 'sin síntomas psiquiátricos referidos'
+};
+
+let sistemasActivos = {};
+
+function buildSistemasSelector() {
+  const sel = document.getElementById('sistemas-selector');
+  const blocks = document.getElementById('sistemas-blocks');
+
+  sel.innerHTML = Object.keys(SISTEMAS).map(s => `
+    <div class="sistema-toggle" id="st-${s}" onclick="toggleSistema('${s}')">
+      <div class="st-check"></div>
+      <span>${s}</span>
+    </div>
+  `).join('');
+
+  blocks.innerHTML = Object.entries(SISTEMAS).map(([s, items]) => `
+    <div class="sistema-block" id="sb-${s}">
+      <div class="sistema-block-header">
+        ${s}
+        <label class="quick-normal" onclick="toggleSistemaNormal('${s}', event)" style="margin:0">
+          <div class="qn-box" id="sn-box-${s}"></div>
+          <span>Sin alteraciones</span>
+        </label>
+      </div>
+      <div class="sistema-block-body" id="sb-body-${s}">
+        <div class="check-grid">
+          ${items.map(i => checkItem(`sys-${s}-${i}`, i)).join('')}
+        </div>
+        <div class="field-group" style="margin-top:8px">
+          <label>Otros hallazgos</label>
+          <input type="text" id="sys-${s}-otros" placeholder="Especificar...">
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  blocks.querySelectorAll('.check-item').forEach(el => el.addEventListener('click', () => toggleCheck(el)));
+}
+
+function toggleSistema(name) {
+  sistemasActivos[name] = !sistemasActivos[name];
+  const toggle = document.getElementById(`st-${name}`);
+  const block = document.getElementById(`sb-${name}`);
+  toggle.classList.toggle('on', sistemasActivos[name]);
+  block.classList.toggle('active', sistemasActivos[name]);
+}
+
+function toggleSistemaNormal(name, e) {
+  e.stopPropagation();
+  const box = document.getElementById(`sn-box-${name}`);
+  const body = document.getElementById(`sb-body-${name}`);
+  const isOn = box.classList.toggle('checked-sys');
+  if (isOn) {
+    box.style.background = 'var(--green)';
+    box.style.borderColor = 'var(--green)';
+    box.innerHTML = '<div style="width:8px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translateY(-1px)"></div>';
+    body.style.opacity = '0.4';
+    body.style.pointerEvents = 'none';
+  } else {
+    box.style.background = '';
+    box.style.borderColor = '';
+    box.innerHTML = '';
+    body.style.opacity = '';
+    body.style.pointerEvents = '';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// ABCDE
+// ═══════════════════════════════════════════════════
+const ABCDE_BOX = [
+  { l:'A', title:'Vía aérea', sub:'Permeabilidad y protección', fields:[
+    { type:'radio', name:'a-perm', options:['Permeable','Comprometida','Con apoyo'], label:'Estado' },
+    { type:'text', id:'a-libre', label:'Hallazgos' }
+  ]},
+  { l:'B', title:'Respiración', sub:'Ventilación y oxigenación', fields:[
+    { type:'radio', name:'b-patron', options:['Eupneico','Taquipneico','Bradipneico','Dificultad respiratoria'], label:'Patrón' },
+    { type:'text', id:'b-libre', label:'Hallazgos' }
+  ]},
+  { l:'C', title:'Circulación', sub:'Perfusión y hemodinámica', fields:[
+    { type:'radio', name:'c-perf', options:['Buena perfusión','Hipoperfusión periférica'], label:'Perfusión' },
+    { type:'text', id:'c-libre', label:'Hallazgos' }
+  ]},
+  { l:'D', title:'Déficit neurológico', sub:'Nivel de consciencia', fields:[
+    { type:'radio', name:'d-conc', options:['Consciente y orientado','Desorientado','Soporoso','Glasgow'], label:'Consciencia' },
+    { type:'text', id:'d-libre', label:'Hallazgos' }
+  ]},
+  { l:'E', title:'Exposición', sub:'Temperatura y piel', fields:[
+    { type:'radio', name:'e-piel', options:['Sin hallazgos','Con hallazgos'], label:'Exposición' },
+    { type:'text', id:'e-libre', label:'Hallazgos' }
+  ]}
+];
+
+const ABCDE_REAM = [
+  { l:'A', title:'Vía aérea', sub:'Manejo y dispositivos', fields:[
+    { type:'radio', name:'a-perm', options:['Permeable','Comprometida','Con apoyo'], label:'Estado' },
+    { type:'chips', id:'a-interv', label:'Intervenciones', options:['Sin intervención','Cánula orofaríngea','Intubación orotraqueal','Cricotiroidotomía','Otro'] },
+    { type:'text', id:'a-libre', label:'Hallazgos / Detalles' }
+  ]},
+  { l:'B', title:'Respiración', sub:'Ventilación y soporte', fields:[
+    { type:'radio', name:'b-patron', options:['Eupneico','Taquipneico','Bradipneico','Dificultad respiratoria','Apnea'], label:'Patrón' },
+    { type:'chips', id:'b-interv', label:'Soporte ventilatorio', options:['Sin soporte','O₂ por mascarilla','Ventilación no invasiva','Ventilación mecánica','Otro'] },
+    { type:'text', id:'b-libre', label:'Hallazgos' }
+  ]},
+  { l:'C', title:'Circulación', sub:'Accesos y reanimación', fields:[
+    { type:'radio', name:'c-perf', options:['Buena perfusión','Hipoperfusión periférica','Shock'], label:'Perfusión' },
+    { type:'chips', id:'c-interv', label:'Intervenciones', options:['Acceso venoso periférico','Acceso venoso central','Reanimación con volumen','Vasopresores','RCP activa','Otro'] },
+    { type:'text', id:'c-libre', label:'Hallazgos' }
+  ]},
+  { l:'D', title:'Déficit neurológico', sub:'Escala de Glasgow', fields:[
+    { type:'gcs', label:'Glasgow' },
+    { type:'radio', name:'d-pupilas', options:['Isocóricas reactivas','Anisocoria','Midriasis','Miosis'], label:'Pupilas' },
+    { type:'chips', id:'d-interv', label:'Intervenciones', options:['Neuroprotección','Posición 30°','Manitol','Otro'] },
+    { type:'text', id:'d-libre', label:'Hallazgos adicionales' }
+  ]},
+  { l:'E', title:'Exposición', sub:'Temperatura corporal y piel', fields:[
+    { type:'radio', name:'e-temp', options:['Normotérmico','Hipotérmico','Febril','Hipertérmico'], label:'Temperatura' },
+    { type:'chips', id:'e-interv', label:'Intervenciones', options:['Control de hemorragia','Inmovilización','Acceso IO','Otro'] },
+    { type:'text', id:'e-libre', label:'Hallazgos / Lesiones' }
+  ]}
+];
+
+function buildABCDE() {
+  const container = document.getElementById('abcde-container');
+  const data = currentMode === 'ream' ? ABCDE_REAM : ABCDE_BOX;
+  const icon = document.getElementById('abcde-icon');
+  icon.textContent = currentMode === 'ream' ? '🔴' : '🔵';
+
+  container.innerHTML = data.map((item, idx) => `
+    <div class="abcde-item">
+      <div class="abcde-header" onclick="toggleABCDE(${idx})">
+        <div class="abcde-letter ${currentMode==='ream'?'red':''}">${item.l}</div>
+        <div>
+          <div class="abcde-title">${item.title}</div>
+          <div class="abcde-subtitle">${item.sub}</div>
+        </div>
+        <div style="margin-left:auto">
+          <label class="quick-normal" onclick="event.stopPropagation(); toggleABCDENormal('${item.l}', this)" id="abcde-normal-${item.l}" style="margin:0">
+            <div class="qn-box"></div>
+            <span>Sin alteraciones</span>
+          </label>
+        </div>
+      </div>
+      <div class="abcde-body" id="abcde-body-${item.l}">
+        ${item.fields.map(f => buildABCDEField(f)).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // bind chip interactions
+  container.querySelectorAll('.interv-chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+}
+
+function buildABCDEField(f) {
+  if (f.type === 'radio') return `
+    <div class="field-group" style="margin-bottom:12px">
+      <label class="vital-label">${f.label}</label>
+      <div class="pill-group" style="margin-top:5px">
+        ${f.options.map((o,i) => `<input type="radio" name="${f.name}" id="${f.name}-${i}" value="${o}"><label for="${f.name}-${i}">${o}</label>`).join('')}
+      </div>
+    </div>
+  `;
+  if (f.type === 'text') return `
+    <div class="field-group" style="margin-bottom:12px">
+      <label class="vital-label">${f.label}</label>
+      <input type="text" id="${f.id}" placeholder="Descripción...">
+    </div>
+  `;
+  if (f.type === 'chips') return `
+    <div class="field-group" style="margin-bottom:12px">
+      <label class="vital-label">${f.label}</label>
+      <div class="interv-grid">
+        ${f.options.map(o => `<div class="interv-chip" data-val="${o}">${o}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  if (f.type === 'gcs') return `
+    <div class="field-group" style="margin-bottom:12px">
+      <label class="vital-label">Glasgow</label>
+      <div class="gcs-row">
+        <div class="field-group">
+          <label>Ocular (E)</label>
+          <select id="gcs-e" onchange="updateGCS()">
+            <option value="">—</option>
+            <option value="4">4 — Espontánea</option>
+            <option value="3">3 — A la voz</option>
+            <option value="2">2 — Al dolor</option>
+            <option value="1">1 — Sin respuesta</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Verbal (V)</label>
+          <select id="gcs-v" onchange="updateGCS()">
+            <option value="">—</option>
+            <option value="5">5 — Orientado</option>
+            <option value="4">4 — Confuso</option>
+            <option value="3">3 — Palabras</option>
+            <option value="2">2 — Sonidos</option>
+            <option value="1">1 — Sin respuesta</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Motor (M)</label>
+          <select id="gcs-m" onchange="updateGCS()">
+            <option value="">—</option>
+            <option value="6">6 — Obedece órdenes</option>
+            <option value="5">5 — Localiza dolor</option>
+            <option value="4">4 — Retira al dolor</option>
+            <option value="3">3 — Flexión</option>
+            <option value="2">2 — Extensión</option>
+            <option value="1">1 — Sin respuesta</option>
+          </select>
+        </div>
+        <div class="gcs-total">
+          <div class="gcs-total-num" id="gcs-total">—</div>
+          <div class="gcs-total-label">Glasgow</div>
+        </div>
+      </div>
+    </div>
+  `;
+  return '';
+}
+
+function toggleABCDE(idx) {
+  const data = currentMode === 'ream' ? ABCDE_REAM : ABCDE_BOX;
+  const letter = data[idx].l;
+  const body = document.getElementById(`abcde-body-${letter}`);
+  body.classList.toggle('open');
+}
+
+function toggleABCDENormal(letter, el) {
+  el.classList.toggle('checked');
+  const body = document.getElementById(`abcde-body-${letter}`);
+  const isOn = el.classList.contains('checked');
+  body.style.opacity = isOn ? '0.4' : '';
+  body.style.pointerEvents = isOn ? 'none' : '';
+}
+
+function updateGCS() {
+  const e = parseInt(document.getElementById('gcs-e')?.value)||0;
+  const v = parseInt(document.getElementById('gcs-v')?.value)||0;
+  const m = parseInt(document.getElementById('gcs-m')?.value)||0;
+  const tot = document.getElementById('gcs-total');
+  if(tot) tot.textContent = (e+v+m) || '—';
+}
+
+// ═══════════════════════════════════════════════════
+// SEGMENTOS EXAMEN FÍSICO
+// ═══════════════════════════════════════════════════
+const SEGMENTOS = [
+  { id:'cabeza', label:'Cabeza y cuello', normal:'Cráneo normoconfigurado, sin lesiones. Cuello sin adenopatías, sin ingurgitación yugular.' },
+  { id:'torax', label:'Tórax', normal:'Tórax simétrico, expansión conservada bilateralmente, murmullo pulmonar conservado sin ruidos agregados.' },
+  { id:'cardio', label:'Cardiovascular', normal:'Ruidos cardíacos rítmicos en dos tiempos, de buena intensidad, sin soplos audibles.' },
+  { id:'abdomen', label:'Abdomen', normal:'Abdomen blando, depresible, indoloro a la palpación superficial y profunda, sin visceromegalias ni signos de irritación peritoneal.' },
+  { id:'eess', label:'Extremidades superiores', normal:'Extremidades superiores simétricas, sin edema, pulsos radiales presentes y simétricos.' },
+  { id:'eeii', label:'Extremidades inferiores', normal:'Extremidades inferiores simétricas, sin edema, pulsos pedios presentes y simétricos.' },
+  { id:'neuro', label:'Neurológico', normal:'Paciente consciente, orientado en tiempo, lugar y persona. Fuerza y sensibilidad conservadas de forma simétrica. Reflejos osteotendinosos presentes.' },
+  { id:'piel', label:'Piel y mucosas', normal:'Piel normohidratada, normocoloreada, sin lesiones. Mucosas húmedas.' }
+];
+
+function buildSegmentos() {
+  const container = document.getElementById('segmentos-container');
+  container.innerHTML = SEGMENTOS.map(s => `
+    <div class="segmento-item" id="seg-item-${s.id}">
+      <div class="segmento-header">
+        <div class="segmento-toggle" id="seg-toggle-${s.id}" onclick="toggleSegmento('${s.id}')"></div>
+        <div class="segmento-name">${s.label}</div>
+      </div>
+      <div class="segmento-body" id="seg-body-${s.id}">
+        <label class="quick-normal" onclick="toggleSegNormal('${s.id}', this)" id="seg-normal-${s.id}" style="margin-bottom:10px">
+          <div class="qn-box"></div>
+          <span>Sin alteraciones</span>
+        </label>
+        <div class="field-group" id="seg-fields-${s.id}">
+          <label>Hallazgos</label>
+          <textarea id="seg-text-${s.id}" placeholder="Describir hallazgos..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+let segmentosActivos = {};
+let segmentosNormales = {};
+let ecoActivas = {};
+let ecoNormales = {};
+
+// ═══════════════════════════════════════════════════
+// ECO VENTANAS
+// ═══════════════════════════════════════════════════
+const ECO_VENTANAS = [
+  { id:'fast', label:'FAST / eFAST', normal:'Sin líquido libre en espacio de Morrison, esplenorrenal, pélvico ni pericárdico. Pleuras sin derrame.' },
+  { id:'pulmonar', label:'Pulmonar', normal:'Deslizamiento pleural presente bilateralmente. Sin líneas B patológicas. Sin consolidaciones.' },
+  { id:'cardiaco', label:'Cardíaco (POCUS)', normal:'Función sistólica del ventrículo izquierdo conservada de forma visual. Sin derrame pericárdico. VCI con variabilidad conservada.' },
+  { id:'vascular', label:'Vascular (accesos / TVP)', normal:'Sin signos ecográficos de trombosis venosa profunda en los segmentos explorados.' },
+  { id:'abdominal', label:'Abdominal', normal:'Sin dilatación de asas ni colecciones intraabdominales evidentes al examen ecográfico.' },
+  { id:'renal', label:'Renal / vías urinarias', normal:'Riñones de tamaño y ecogenicidad conservada. Sin dilatación pielocalicial.' },
+  { id:'musculo', label:'Partes blandas / músculo', normal:'Sin colecciones ni signos de fascitis en partes blandas exploradas.' },
+];
+
+function buildEcoVentanas() {
+  const container = document.getElementById('eco-ventanas');
+  container.innerHTML = ECO_VENTANAS.map(v => `
+    <div class="segmento-item" id="eco-item-${v.id}">
+      <div class="segmento-header">
+        <div class="segmento-toggle" id="eco-toggle-${v.id}" onclick="toggleEco('${v.id}')"></div>
+        <div class="segmento-name">${v.label}</div>
+      </div>
+      <div class="segmento-body" id="eco-body-${v.id}">
+        <label class="quick-normal" onclick="toggleEcoNormal('${v.id}', this)" style="margin-bottom:10px">
+          <div class="qn-box"></div>
+          <span>Sin alteraciones</span>
+        </label>
+        <div class="field-group" id="eco-fields-${v.id}">
+          <label>Hallazgos</label>
+          <textarea id="eco-text-${v.id}" placeholder="Describir hallazgos..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleEco(id) {
+  ecoActivas[id] = !ecoActivas[id];
+  document.getElementById(`eco-toggle-${id}`).classList.toggle('on', ecoActivas[id]);
+  document.getElementById(`eco-body-${id}`).classList.toggle('open', ecoActivas[id]);
+}
+
+function toggleEcoNormal(id, el) {
+  el.classList.toggle('checked');
+  ecoNormales[id] = el.classList.contains('checked');
+  const fields = document.getElementById(`eco-fields-${id}`);
+  fields.style.opacity = ecoNormales[id] ? '0.4' : '';
+  fields.style.pointerEvents = ecoNormales[id] ? 'none' : '';
+}
+
+function toggleSegmento(id) {
+  segmentosActivos[id] = !segmentosActivos[id];
+  const toggle = document.getElementById(`seg-toggle-${id}`);
+  const body = document.getElementById(`seg-body-${id}`);
+  toggle.classList.toggle('on', segmentosActivos[id]);
+  body.classList.toggle('open', segmentosActivos[id]);
+}
+
+function toggleSegNormal(id, el) {
+  el.classList.toggle('checked');
+  segmentosNormales[id] = el.classList.contains('checked');
+  const fields = document.getElementById(`seg-fields-${id}`);
+  fields.style.opacity = segmentosNormales[id] ? '0.4' : '';
+  fields.style.pointerEvents = segmentosNormales[id] ? 'none' : '';
+}
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+function checkItem(id, label) {
+  return `<div class="check-item" id="ci-${id}">
+    <input type="checkbox" id="${id}">
+    <div class="check-box"></div>
+    <span>${label}</span>
+  </div>`;
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input[type="checkbox"]').checked = el.classList.contains('checked');
+}
+
+function toggleQuickNormal(label, inputId) {
+  label.classList.toggle('checked');
+}
+
+function toggleOptional(id) {
+  const sw = document.getElementById(`${id}-sw`);
+  const body = document.getElementById(`${id}-body`);
+  sw.classList.toggle('on');
+  body.classList.toggle('open');
+}
+
+function updateEVA(ctx) {
+  const slider = document.getElementById(`eva-${ctx}-slider`);
+  const val = document.getElementById(`eva-${ctx}-val`);
+  val.textContent = slider.value;
+}
+
+function toggleEVACard(el) {
+  el.classList.toggle('checked');
+  const wrap = document.getElementById('eva-ep-slider-wrap');
+  wrap.style.display = el.classList.contains('checked') ? 'block' : 'none';
+}
+
+function setupListeners() {
+  // irradia
+  document.querySelectorAll('input[name="irradia"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('irradia-destino-wrap').style.display =
+        document.querySelector('input[name="irradia"]:checked')?.value === 'si' ? 'block' : 'none';
+    });
+  });
+
+  // tabaco
+  document.querySelectorAll('input[name="tabaco"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('tabaco-detalle').style.display =
+        document.querySelector('input[name="tabaco"]:checked')?.value === 'activo' ? 'flex' : 'none';
+    });
+  });
+
+  // drogas
+  document.querySelectorAll('input[name="drogas"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('drogas-detalle').style.display =
+        document.querySelector('input[name="drogas"]:checked')?.value === 'si' ? 'flex' : 'none';
+    });
+  });
+
+  // O2
+  document.querySelectorAll('input[name="o2-uso"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const wrap = document.getElementById('o2-detalle-wrap');
+      wrap.style.display = document.querySelector('input[name="o2-uso"]:checked')?.value === 'si' ? 'flex' : 'none';
+    });
+  });
+
+  // ant-med-none
+  document.getElementById('ant-med-none').addEventListener('change', function() {
+    document.getElementById('ant-med-body').style.opacity = this.checked ? '0.4' : '';
+    document.getElementById('ant-med-body').style.pointerEvents = this.checked ? 'none' : '';
+  });
+
+  // ant-qx-none
+  document.getElementById('ant-qx-none').addEventListener('change', function() {
+    document.getElementById('ant-qx-body').style.opacity = this.checked ? '0.4' : '';
+    document.getElementById('ant-qx-body').style.pointerEvents = this.checked ? 'none' : '';
+  });
+
+  // alergias-none
+  document.getElementById('alergias-none').addEventListener('change', function() {
+    document.getElementById('alergias-body').style.opacity = this.checked ? '0.4' : '';
+    document.getElementById('alergias-body').style.pointerEvents = this.checked ? 'none' : '';
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// NOTA CLÍNICA
+// ═══════════════════════════════════════════════════
+function getVal(id) { return (document.getElementById(id)?.value || '').trim(); }
+function getRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || ''; }
+function getChecked(selector) {
+  return Array.from(document.querySelectorAll(selector))
+    .filter(el => el.classList.contains('checked'))
+    .map(el => el.querySelector('span').textContent.trim());
+}
+function getChips(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return [];
+  return Array.from(c.querySelectorAll('.interv-chip.selected')).map(ch => ch.dataset.val);
+}
+
+function generarNota() {
+  const sexo = getVal('h-sexo');
+  const edad = getVal('h-edad');
+  const edadUnit = getVal('h-edad-unit');
+  const ingreso = getVal('h-ingreso');
+  const motivo = getVal('motivo');
+
+  // HCA
+  const onsetTiempo = getVal('onset-tiempo');
+  const onsetUnidad = getVal('onset-unidad');
+  const onsetForma = getRadio('onset-forma');
+  const paliativo = getVal('paliativo');
+  const provocador = getVal('provocador');
+  const calidadChecked = getChecked('#calidad-grid .check-item');
+  const calidadOtro = getVal('calidad-otro');
+  const irradia = getRadio('irradia');
+  const irradiaDestino = getVal('irradia-destino');
+  const evaHCA = getVal('eva-hca-slider');
+  const curso = getRadio('curso');
+  const episodiosPrev = getRadio('episodios');
+  const hcaLibre = getVal('hca-libre');
+
+  const sintGenerales = getChecked('#sint-generales .check-item');
+  const sintCardio = getChecked('#sint-cardio .check-item');
+  const sintDigestivo = getChecked('#sint-digestivo .check-item');
+  const sintNeuro = getChecked('#sint-neuro .check-item');
+  const sintOtros = getChecked('#sint-otros .check-item');
+  const todosSlint = [...sintGenerales,...sintCardio,...sintDigestivo,...sintNeuro,...sintOtros];
+
+  // Anamnesis
+  const antMedNone = document.getElementById('ant-med-none').checked;
+  const antMedChecked = getChecked('#antmed-grid .check-item');
+  const antMedOtros = getVal('ant-med-otros');
+  const antQxNone = document.getElementById('ant-qx-none').checked;
+  const antQx = getVal('ant-qx');
+  const alergiasNone = document.getElementById('alergias-none').checked;
+  const alergias = getVal('alergias');
+  const tabaco = getRadio('tabaco');
+  const tabacoCant = getVal('tabaco-cant');
+  const alcohol = getRadio('alcohol');
+  const alcoholDetalle = getVal('alcohol-detalle');
+  const drogas = getRadio('drogas');
+  const drogasCual = getVal('drogas-cual');
+  const medSw = document.getElementById('medicamentos-sw').classList.contains('on');
+  const medicamentos = getVal('medicamentos');
+  const ginecoSw = document.getElementById('gineco-sw').classList.contains('on');
+  const ginG = getVal('gin-g'), ginP = getVal('gin-p'), ginA = getVal('gin-a'), ginC = getVal('gin-c');
+  const ginFur = getVal('gin-fur'), ginMac = getVal('gin-mac'), ginOtros = getVal('gin-otros');
+
+  // Evaluación primaria
+  const aspecto = getRadio('aspecto');
+  const aspectoLibre = getVal('aspecto-libre');
+  const fc = getVal('sv-fc'), pas = getVal('sv-pas'), pad = getVal('sv-pad');
+  const fr = getVal('sv-fr'), temp = getVal('sv-temp'), spo2 = getVal('sv-spo2'), hgt = getVal('sv-hgt');
+  const o2uso = getRadio('o2-uso');
+  const o2dispositivo = getVal('o2-dispositivo');
+  const o2flujo = getVal('o2-flujo');
+  const o2fio2 = getVal('o2-fio2');
+  const evaEpCheck = document.getElementById('eva-ep-check').checked;
+  const evaEp = getVal('eva-ep-slider');
+
+  // ABCDE
+  const abcdeData = currentMode === 'ream' ? ABCDE_REAM : ABCDE_BOX;
+  const abcdeSections = abcdeData.map(item => {
+    const normalEl = document.getElementById(`abcde-normal-${item.l}`);
+    const isNormal = normalEl?.classList.contains('checked');
+    return { letter: item.l, title: item.title, isNormal };
+  });
+
+  const aPermeable = getRadio('a-perm');
+  const aLibre = getVal('a-libre');
+  const bPatron = getRadio('b-patron');
+  const bLibre = getVal('b-libre');
+  const cPerf = getRadio('c-perf');
+  const cLibre = getVal('c-libre');
+  const dConc = getRadio('d-conc');
+  const dLibre = getVal('d-libre');
+  const eTempR = getRadio('e-temp');
+  const eLibre = getVal('e-libre');
+  const ePiel = getRadio('e-piel');
+
+  // GCS
+  const gcsE = document.getElementById('gcs-e')?.value || '';
+  const gcsV = document.getElementById('gcs-v')?.value || '';
+  const gcsM = document.getElementById('gcs-m')?.value || '';
+  const gcsTot = document.getElementById('gcs-total')?.textContent || '';
+  const dPupilas = getRadio('d-pupilas');
+
+  // Intervenciones
+  const aInterv = getChips('a-interv');
+  const bInterv = getChips('b-interv');
+  const cInterv = getChips('c-interv');
+  const dInterv = getChips('d-interv');
+  const eInterv = getChips('e-interv');
+
+  // Examen físico
+  const segmentosTxt = SEGMENTOS
+    .filter(s => segmentosActivos[s.id])
+    .map(s => {
+      const isNormal = segmentosNormales[s.id];
+      const texto = isNormal ? s.normal : (getVal(`seg-text-${s.id}`) || s.normal);
+      return `${s.label}: ${texto}.`;
+    });
+
+  // Sistemas
+  const rpsSw = document.getElementById('rps-sw').classList.contains('on');
+  const sistemasTxt = [];
+  if (rpsSw) {
+    Object.keys(SISTEMAS).forEach(s => {
+      if (!sistemasActivos[s]) return;
+      const box = document.getElementById(`sn-box-${s}`);
+      const isNormal = box.classList.contains('checked-sys');
+      if (isNormal) {
+        sistemasTxt.push(`Sistema ${s.toLowerCase()}: ${SINT_NORMALES[s]}.`);
+      } else {
+        const items = getChecked(`#sb-body-${s} .check-item`);
+        const otros = getVal(`sys-${s}-otros`);
+        let desc = items.length ? items.join(', ') : '';
+        if (otros) desc += (desc ? ', ' : '') + otros;
+        if (desc) sistemasTxt.push(`Sistema ${s.toLowerCase()}: se refiere ${desc}.`);
+        else sistemasTxt.push(`Sistema ${s.toLowerCase()}: sin hallazgos significativos referidos.`);
+      }
+    });
+  }
+
+  // Estudios complementarios
+  const ecoSw = document.getElementById('eco-sw').classList.contains('on');
+  const ecgSw = document.getElementById('ecg-sw').classList.contains('on');
+  const extSw = document.getElementById('ext-sw').classList.contains('on');
+  const ecgTexto = getVal('ecg-texto');
+  const extLab = getVal('ext-lab');
+  const extImg = getVal('ext-img');
+  const extOtros = getVal('ext-otros');
+  const ecoTxt = ECO_VENTANAS
+    .filter(v => ecoActivas[v.id])
+    .map(v => {
+      const isNormal = ecoNormales[v.id];
+      const texto = isNormal ? v.normal : (getVal(`eco-text-${v.id}`) || v.normal);
+      return `${v.label}: ${texto}.`;
+    });
+
+  // Impresión y plan
+  const impresion = getVal('impresion');
+  const plan = getVal('plan');
+
+  // ── BUILD TEXT ──
+  let nota = '';
+
+  // Encabezado
+  let encab = `Paciente de ${edad} ${edadUnit}`;
+  if (sexo) encab += `, sexo ${sexo.toLowerCase()}`;
+  if (ingreso) encab += `, ingresa ${ingreso.toLowerCase()}`;
+  nota += encab + '.\n\n';
+
+  // Motivo
+  if (motivo) nota += `MOTIVO DE CONSULTA: ${motivo}\n\n`;
+
+  // HCA
+  nota += 'HISTORIA CLÍNICA ACTUAL:\n';
+  let hcaTxt = '';
+  if (onsetTiempo) hcaTxt += `Cuadro de ${onsetTiempo} ${onsetUnidad} de evolución`;
+  if (onsetForma) hcaTxt += ` de inicio ${onsetForma}`;
+  let calidad = [...calidadChecked];
+  if (calidadOtro) calidad.push(calidadOtro);
+  if (calidad.length) hcaTxt += `. Paciente describe el síntoma de carácter ${calidad.join(', ').toLowerCase()}`;
+  if (irradia === 'si' && irradiaDestino) hcaTxt += `, con irradiación hacia ${irradiaDestino}`;
+  else if (irradia === 'no') hcaTxt += `, sin irradiación`;
+  if (evaHCA && evaHCA !== '0') hcaTxt += `. Intensidad EVA ${evaHCA}/10`;
+  if (curso) hcaTxt += `. Curso ${curso}`;
+  if (episodiosPrev === 'si') hcaTxt += `. Refiere episodios previos similares`;
+  else if (episodiosPrev === 'no') hcaTxt += `. Sin episodios previos similares`;
+  if (paliativo) hcaTxt += `. Mejora con: ${paliativo.toLowerCase()}`;
+  if (provocador) hcaTxt += `. Empeora con: ${provocador.toLowerCase()}`;
+  if (todosSlint.length) hcaTxt += `.\nSe acompaña de: ${todosSlint.join(', ').toLowerCase()}`;
+  if (hcaLibre) hcaTxt += `.\n${hcaLibre}`;
+  nota += (hcaTxt || 'Sin descripción adicional') + '.\n\n';
+
+  // Anamnesis
+  nota += 'ANAMNESIS REMOTA:\n';
+  if (antMedNone) nota += 'Sin antecedentes médicos conocidos. ';
+  else {
+    let antMeds = [...antMedChecked];
+    if (antMedOtros) antMeds.push(antMedOtros);
+    nota += antMeds.length ? `Antecedentes de: ${antMeds.join(', ')}. ` : 'Sin antecedentes médicos conocidos. ';
+  }
+  if (antQxNone) nota += 'Sin antecedentes quirúrgicos. ';
+  else if (antQx) nota += `Antecedentes quirúrgicos: ${antQx}. `;
+  if (alergiasNone) nota += 'Sin alergias conocidas. ';
+  else if (alergias) nota += `Alergia a: ${alergias}. `;
+
+  // Hábitos
+  let habitos = [];
+  if (tabaco === 'no') habitos.push('no refiere consumo de tabaco');
+  else if (tabaco === 'ex-fumador') habitos.push('ex-fumador');
+  else if (tabaco === 'activo') habitos.push(`tabaquismo activo${tabacoCant ? ' (' + tabacoCant + ' cigarrillos/día)' : ''}`);
+  if (alcohol === 'no') habitos.push('no refiere consumo de alcohol');
+  else if (alcohol === 'ocasional') habitos.push(`consumo ocasional de alcohol${alcoholDetalle ? ' (' + alcoholDetalle + ')' : ''}`);
+  else if (alcohol === 'habitual') habitos.push(`consumo habitual de alcohol${alcoholDetalle ? ' (' + alcoholDetalle + ')' : ''}`);
+  if (drogas === 'no') habitos.push('no refiere consumo de drogas');
+  else if (drogas === 'si') habitos.push(`consumo de sustancias${drogasCual ? ': ' + drogasCual : ''}`);
+  if (habitos.length) nota += `Hábitos: ${habitos.join(', ')}. `;
+
+  if (medSw && medicamentos) nota += `\nMedicamentos habituales: ${medicamentos}. `;
+  if (ginecoSw) {
+    let ginTxt = '';
+    if (ginG || ginP || ginA || ginC) ginTxt += `G${ginG||0}P${ginP||0}A${ginA||0}C${ginC||0}`;
+    if (ginFur) ginTxt += `, FUR: ${ginFur}`;
+    if (ginMac) ginTxt += `, MAC: ${ginMac}`;
+    if (ginOtros) ginTxt += `, ${ginOtros}`;
+    if (ginTxt) nota += `\nAntecedentes gineco-obstétricos: ${ginTxt}. `;
+  }
+  nota += '\n\n';
+
+  // Evaluación primaria
+  nota += 'EVALUACIÓN PRIMARIA:\n';
+  const aspectoTexto = { buen:'Buen estado general', regular:'Regular estado general', mal:'Mal estado general' }[aspecto] || '';
+  nota += aspectoTexto;
+  if (aspectoLibre) nota += `, ${aspectoLibre}`;
+  nota += '.\n';
+
+  let sv = [];
+  if (fc) sv.push(`FC ${fc} lpm`);
+  if (pas && pad) sv.push(`PA ${pas}/${pad} mmHg`);
+  if (fr) sv.push(`FR ${fr} rpm`);
+  if (temp) sv.push(`T° ${temp}°C`);
+  if (spo2) sv.push(`SpO₂ ${spo2}%`);
+  if (hgt) sv.push(`HGT ${hgt} mg/dL`);
+  if (sv.length) nota += `Signos vitales: ${sv.join(', ')}.\n`;
+  if (o2uso === 'no') nota += 'Sin requerimiento de oxígeno adicional.\n';
+  else if (o2uso === 'si') {
+    let o2txt = 'Con soporte de oxígeno suplementario';
+    if (o2dispositivo) o2txt += ` mediante ${o2dispositivo.toLowerCase()}`;
+    if (o2flujo) o2txt += ` a ${o2flujo} L/min`;
+    if (o2fio2) o2txt += ` (FiO₂ ${o2fio2}%)`;
+    nota += o2txt + '.\n';
+  }
+
+  if (evaEpCheck) nota += `Escala de dolor EVA: ${evaEp}/10.\n`;
+
+  // ABCDE texto
+  nota += '\nABCDE:\n';
+  const abcdeNormals = {
+    A: { perm: { 'Permeable':'Vía aérea permeable y protegida', 'Comprometida':'Vía aérea comprometida', 'Con apoyo':'Vía aérea permeable con apoyo de dispositivo' } },
+    B: { patron: { 'Eupneico':'Patrón ventilatorio eupneico', 'Taquipneico':'Patrón ventilatorio taquipneico', 'Bradipneico':'Patrón ventilatorio bradipneico', 'Dificultad respiratoria':'Con dificultad respiratoria evidente', 'Apnea':'Apnea' } },
+    C: { perf: { 'Buena perfusión':'Buena perfusión periférica, llene capilar conservado', 'Hipoperfusión periférica':'Hipoperfusión periférica, llene capilar enlentecido', 'Shock':'En shock, hipoperfusión global' } },
+    D: { conc: { 'Consciente y orientado':'Consciente, orientado en tiempo, lugar y persona', 'Desorientado':'Desorientado', 'Soporoso':'Soporoso, responde a estímulos', 'Glasgow':'Ver Glasgow' } },
+    E: { temp: { 'Normotérmico':'Normotérmico al examen', 'Hipotérmico':'Hipotérmico al examen', 'Febril':'Febril al examen', 'Hipertérmico':'Hipertérmico al examen' }, piel: { 'Sin hallazgos':'Sin lesiones cutáneas evidentes', 'Con hallazgos':'Con hallazgos en piel' } }
+  };
+
+  const aNorm = document.getElementById('abcde-normal-A')?.classList.contains('checked');
+  const bNorm = document.getElementById('abcde-normal-B')?.classList.contains('checked');
+  const cNorm = document.getElementById('abcde-normal-C')?.classList.contains('checked');
+  const dNorm = document.getElementById('abcde-normal-D')?.classList.contains('checked');
+  const eNorm = document.getElementById('abcde-normal-E')?.classList.contains('checked');
+
+  if (aNorm) nota += 'A — Vía aérea permeable y protegida sin requerimiento de dispositivos.\n';
+  else {
+    let a = abcdeNormals.A.perm[aPermeable] || '';
+    if (aInterv.length && !aInterv.includes('Sin intervención')) a += `. Intervenciones: ${aInterv.join(', ')}`;
+    if (aLibre) a += `. ${aLibre}`;
+    if (a) nota += `A — ${a}.\n`;
+  }
+
+  if (bNorm) nota += 'B — Ventilación espontánea, murmullo pulmonar conservado bilateralmente, sin requerimiento de soporte ventilatorio.\n';
+  else {
+    let b = abcdeNormals.B.patron[bPatron] || '';
+    if (bInterv.length && !bInterv.includes('Sin soporte')) b += `. Soporte: ${bInterv.join(', ')}`;
+    if (bLibre) b += `. ${bLibre}`;
+    if (b) nota += `B — ${b}.\n`;
+  }
+
+  if (cNorm) nota += 'C — Hemodinámicamente estable, buena perfusión periférica, pulsos presentes y simétricos.\n';
+  else {
+    let c = abcdeNormals.C.perf[cPerf] || '';
+    if (cInterv.length) c += `. ${cInterv.join(', ')}`;
+    if (cLibre) c += `. ${cLibre}`;
+    if (c) nota += `C — ${c}.\n`;
+  }
+
+  if (dNorm) nota += 'D — Consciente, orientado en tiempo, lugar y persona. Pupilas isocóricas y reactivas a la luz.\n';
+  else {
+    let d = '';
+    if (currentMode === 'ream' && (gcsE || gcsV || gcsM)) {
+      d = `Glasgow ${gcsTot}/15 (E${gcsE||'?'} V${gcsV||'?'} M${gcsM||'?'})`;
+    } else {
+      d = abcdeNormals.D.conc[dConc] || '';
+    }
+    if (dPupilas) d += `. Pupilas: ${dPupilas.toLowerCase()}`;
+    if (dInterv.length) d += `. ${dInterv.join(', ')}`;
+    if (dLibre) d += `. ${dLibre}`;
+    if (d) nota += `D — ${d}.\n`;
+  }
+
+  if (eNorm) nota += 'E — Sin lesiones traumáticas visibles. Temperatura conservada.\n';
+  else {
+    let e = '';
+    if (currentMode === 'ream') e = abcdeNormals.E.temp[eTempR] || '';
+    else e = abcdeNormals.E.piel[ePiel] || '';
+    if (eInterv.length) e += `. ${eInterv.join(', ')}`;
+    if (eLibre) e += `. ${eLibre}`;
+    if (e) nota += `E — ${e}.\n`;
+  }
+
+  // Examen físico
+  if (segmentosTxt.length) {
+    nota += '\nEXAMEN FÍSICO DIRIGIDO:\n';
+    nota += segmentosTxt.join('\n') + '\n';
+  }
+
+  // Revisión por sistemas
+  if (rpsSw && sistemasTxt.length) {
+    nota += '\nREVISIÓN POR SISTEMAS:\n';
+    nota += sistemasTxt.join('\n') + '\n';
+  }
+
+  // Estudios complementarios
+  const hayEstudios = (ecoSw && ecoTxt.length) || (ecgSw && ecgTexto) || (extSw && (extLab || extImg || extOtros));
+  if (hayEstudios) {
+    nota += '\nESTUDIOS COMPLEMENTARIOS:\n';
+    if (ecoSw && ecoTxt.length) {
+      nota += 'Ultrasonido clínico:\n' + ecoTxt.map(t => `  · ${t}`).join('\n') + '\n';
+    }
+    if (ecgSw && ecgTexto) {
+      nota += `Electrocardiograma: ${ecgTexto}\n`;
+    }
+    if (extSw) {
+      if (extLab) nota += `Laboratorio externo: ${extLab}\n`;
+      if (extImg) nota += `Imágenes externas: ${extImg}\n`;
+      if (extOtros) nota += `Otros exámenes: ${extOtros}\n`;
+    }
+  }
+
+  // Impresión y plan
+  if (impresion) nota += `\nIMPRESIÓN DIAGNÓSTICA:\n${impresion}\n`;
+  if (plan) nota += `\nPLAN:\n${plan}\n`;
+
+  document.getElementById('nota-preview').textContent = nota.trim();
+
+  // mode badge
+  const badge = document.getElementById('mode-badge-nota');
+  badge.className = `mode-badge ${currentMode}`;
+  badge.textContent = currentMode === 'ream' ? '🔴 Reanimación' : '📦 Box';
+}
+
+function regenerarNota() { generarNota(); }
+
+function copiarNota() {
+  const texto = document.getElementById('nota-preview').textContent;
+  navigator.clipboard.writeText(texto).then(() => {
+    const ok = document.getElementById('copy-ok');
+    ok.classList.add('show');
+    setTimeout(() => ok.classList.remove('show'), 2500);
+  });
+}
+
+function nuevaConsulta() {
+  if (!confirm('¿Desea iniciar una nueva consulta? Se perderán los datos actuales.')) return;
+  location.reload();
+}
+
+// ── START ──
+// (init moved to end of file so all functions are defined first)
+
+// ═══════════════════════════════════════════════════
+// APP TABS
+// ═══════════════════════════════════════════════════
+function switchApp(tab) {
+  const isEvol = tab === 'evol';
+  document.getElementById('main').style.display = isEvol ? 'none' : '';
+  document.getElementById('progress-bar').style.display = isEvol ? 'none' : '';
+  document.getElementById('evol-panel').style.display = isEvol ? '' : 'none';
+  document.querySelectorAll('.app-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  if (isEvol) buildEvolSegmentos();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════
+// NOTAS EVOLUTIVAS
+// ═══════════════════════════════════════════════════
+let evolNotas = [];
+let evolFilaCount = 0;
+let evolSegActivos = {};
+let evolSegNormales = {};
+
+const EVOL_CURSO = ['Estable','En mejoría','Sin cambios relevantes','En deterioro'];
+const EVOL_HALLAZGOS = [
+  'Estable hemodinámicamente','Afebril','Eupneico',
+  'Con dolor','Con fiebre','Taquicárdico','Hipotenso',
+  'Con dificultad respiratoria'
+];
+
+const SEGMENTOS_EVOL = [
+  { id:'ev-cabeza', label:'Cabeza y cuello', normal:'Cráneo normoconfigurado, sin lesiones. Cuello sin adenopatías, sin ingurgitación yugular.' },
+  { id:'ev-torax', label:'Tórax', normal:'Tórax simétrico, expansión conservada bilateralmente, murmullo pulmonar conservado sin ruidos agregados.' },
+  { id:'ev-cardio', label:'Cardiovascular', normal:'Ruidos cardíacos rítmicos en dos tiempos, de buena intensidad, sin soplos audibles.' },
+  { id:'ev-abdomen', label:'Abdomen', normal:'Abdomen blando, depresible, indoloro a la palpación superficial y profunda, sin visceromegalias ni signos de irritación peritoneal.' },
+  { id:'ev-eess', label:'Extremidades superiores', normal:'Extremidades superiores simétricas, sin edema, pulsos radiales presentes y simétricos.' },
+  { id:'ev-eeii', label:'Extremidades inferiores', normal:'Extremidades inferiores simétricas, sin edema, pulsos pedios presentes y simétricos.' },
+  { id:'ev-neuro', label:'Neurológico', normal:'Consciente, orientado en tiempo, lugar y persona. Fuerza y sensibilidad conservadas de forma simétrica.' },
+  { id:'ev-piel', label:'Piel y mucosas', normal:'Piel normohidratada, normocoloreada, sin lesiones. Mucosas húmedas.' }
+];
+
+function buildEvolChecklists() {
+  const curso = document.getElementById('evol-curso-grid');
+  if (curso && !curso.innerHTML) {
+    curso.innerHTML = EVOL_CURSO.map(c => checkItem(`evc-${c}`, c)).join('');
+    curso.querySelectorAll('.check-item').forEach(el => el.addEventListener('click', () => toggleCheck(el)));
+  }
+  const hall = document.getElementById('evol-hallazgos-grid');
+  if (hall && !hall.innerHTML) {
+    hall.innerHTML = EVOL_HALLAZGOS.map(h => checkItem(`evh-${h}`, h)).join('');
+    hall.querySelectorAll('.check-item').forEach(el => el.addEventListener('click', () => toggleCheck(el)));
+  }
+
+  // O2 listener
+  document.querySelectorAll('input[name="ev-o2"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('ev-o2-detalle').style.display =
+        document.querySelector('input[name="ev-o2"]:checked')?.value === 'si' ? 'flex' : 'none';
+    });
+  });
+}
+
+function buildEvolSegmentos() {
+  const container = document.getElementById('ev-segmentos-container');
+  if (!container || container.innerHTML) return;
+  container.innerHTML = SEGMENTOS_EVOL.map(s => `
+    <div class="segmento-item">
+      <div class="segmento-header">
+        <div class="segmento-toggle" id="evs-toggle-${s.id}" onclick="toggleEvolSeg('${s.id}')"></div>
+        <div class="segmento-name">${s.label}</div>
+      </div>
+      <div class="segmento-body" id="evs-body-${s.id}">
+        <label class="quick-normal" onclick="toggleEvolSegNormal('${s.id}', this)" style="margin-bottom:10px">
+          <div class="qn-box"></div>
+          <span>Sin alteraciones</span>
+        </label>
+        <div class="field-group" id="evs-fields-${s.id}">
+          <label>Hallazgos</label>
+          <textarea id="evs-text-${s.id}" placeholder="Describir hallazgos..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleEvolSeg(id) {
+  evolSegActivos[id] = !evolSegActivos[id];
+  document.getElementById(`evs-toggle-${id}`).classList.toggle('on', evolSegActivos[id]);
+  document.getElementById(`evs-body-${id}`).classList.toggle('open', evolSegActivos[id]);
+}
+
+function toggleEvolSegNormal(id, el) {
+  el.classList.toggle('checked');
+  evolSegNormales[id] = el.classList.contains('checked');
+  const fields = document.getElementById(`evs-fields-${id}`);
+  fields.style.opacity = evolSegNormales[id] ? '0.4' : '';
+  fields.style.pointerEvents = evolSegNormales[id] ? 'none' : '';
+}
+
+function toggleEvolSec(id) {
+  const sw = document.getElementById(`${id}-sw`);
+  const body = document.getElementById(`${id}-body`);
+  sw.classList.toggle('on');
+  body.classList.toggle('open');
+  if (id === 'estado') buildEvolChecklists();
+  if (id === 'evef') buildEvolSegmentos();
+  if (id === 'tto') buildTtoTabla();
+}
+
+// Treatment table
+function buildTtoTabla() {
+  const wrap = document.getElementById('tto-tabla');
+  if (wrap.innerHTML) return;
+  wrap.innerHTML = `
+    <table class="tto-table" id="tto-rows-table">
+      <thead>
+        <tr>
+          <th>Fármaco / Tratamiento</th>
+          <th>Dosis</th>
+          <th>Vía</th>
+          <th>Frecuencia</th>
+          <th style="width:60px">Días</th>
+          <th>Observaciones</th>
+          <th style="width:32px"></th>
+        </tr>
+      </thead>
+      <tbody id="tto-tbody"></tbody>
+    </table>`;
+  agregarFila();
+}
+
+function agregarFila() {
+  const tbody = document.getElementById('tto-tbody');
+  if (!tbody) { buildTtoTabla(); return; }
+  const id = evolFilaCount++;
+  const tr = document.createElement('tr');
+  tr.id = `tto-row-${id}`;
+  tr.innerHTML = `
+    <td><input type="text" id="tto-f-${id}" placeholder="Amoxicilina..."></td>
+    <td><input type="text" id="tto-d-${id}" placeholder="500 mg"></td>
+    <td>
+      <select id="tto-v-${id}">
+        <option value="">—</option>
+        <option>Oral</option>
+        <option>IV</option>
+        <option>IM</option>
+        <option>SC</option>
+        <option>Inhalatoria</option>
+        <option>Tópica</option>
+        <option>Otro</option>
+      </select>
+    </td>
+    <td><input type="text" id="tto-fr-${id}" placeholder="Cada 8 horas"></td>
+    <td><input type="number" id="tto-dias-${id}" placeholder="7" min="1"></td>
+    <td><input type="text" id="tto-obs-${id}" placeholder="Opcional..."></td>
+    <td><button class="tto-del" onclick="eliminarFila(${id})" title="Eliminar">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function eliminarFila(id) {
+  const row = document.getElementById(`tto-row-${id}`);
+  if (row) row.remove();
+}
+
+function getTtoFilas() {
+  const rows = [];
+  document.querySelectorAll('#tto-tbody tr').forEach(tr => {
+    const id = tr.id.replace('tto-row-', '');
+    const farmaco = (document.getElementById(`tto-f-${id}`)?.value || '').trim();
+    const dosis = (document.getElementById(`tto-d-${id}`)?.value || '').trim();
+    const via = (document.getElementById(`tto-v-${id}`)?.value || '').trim();
+    const freq = (document.getElementById(`tto-fr-${id}`)?.value || '').trim();
+    const dias = (document.getElementById(`tto-dias-${id}`)?.value || '').trim();
+    const obs = (document.getElementById(`tto-obs-${id}`)?.value || '').trim();
+    if (farmaco) rows.push({ farmaco, dosis, via, freq, dias, obs });
+  });
+  return rows;
+}
+
+function generarNotaEvol() {
+  let nota = '';
+
+  // Estado clínico
+  const estadoSw = document.getElementById('estado-sw').classList.contains('on');
+  if (estadoSw) {
+    const curso = getChecked('#evol-curso-grid .check-item');
+    const hallazgos = getChecked('#evol-hallazgos-grid .check-item');
+    const otros = (document.getElementById('evol-estado-otros')?.value || '').trim();
+    let estadoTxt = [];
+    if (curso.length) estadoTxt.push(...curso.map(c => c.toLowerCase()));
+    if (hallazgos.length) estadoTxt.push(...hallazgos.map(h => h.toLowerCase()));
+    if (otros) estadoTxt.push(otros.toLowerCase());
+    if (estadoTxt.length) nota += `ESTADO CLÍNICO: Paciente ${estadoTxt.join(', ')}.\n\n`;
+  }
+
+  // Signos vitales
+  const evsvSw = document.getElementById('evsv-sw').classList.contains('on');
+  if (evsvSw) {
+    const fc = (document.getElementById('ev-fc')?.value||'').trim();
+    const pas = (document.getElementById('ev-pas')?.value||'').trim();
+    const pad = (document.getElementById('ev-pad')?.value||'').trim();
+    const fr = (document.getElementById('ev-fr')?.value||'').trim();
+    const temp = (document.getElementById('ev-temp')?.value||'').trim();
+    const spo2 = (document.getElementById('ev-spo2')?.value||'').trim();
+    const hgt = (document.getElementById('ev-hgt')?.value||'').trim();
+    const o2uso = document.querySelector('input[name="ev-o2"]:checked')?.value || '';
+    const o2disp = (document.getElementById('ev-o2-disp')?.value||'').trim();
+    const o2flujo = (document.getElementById('ev-o2-flujo')?.value||'').trim();
+    const o2fio2 = (document.getElementById('ev-o2-fio2')?.value||'').trim();
+
+    let sv = [];
+    if (fc) sv.push(`FC ${fc} lpm`);
+    if (pas && pad) sv.push(`PA ${pas}/${pad} mmHg`);
+    if (fr) sv.push(`FR ${fr} rpm`);
+    if (temp) sv.push(`T° ${temp}°C`);
+    if (spo2) sv.push(`SpO₂ ${spo2}%`);
+    if (hgt) sv.push(`HGT ${hgt} mg/dL`);
+    if (sv.length) nota += `SIGNOS VITALES: ${sv.join(', ')}.\n`;
+    if (o2uso === 'no') nota += 'Sin requerimiento de oxígeno adicional.\n';
+    else if (o2uso === 'si') {
+      let o2t = 'Con soporte de oxígeno suplementario';
+      if (o2disp) o2t += ` mediante ${o2disp.toLowerCase()}`;
+      if (o2flujo) o2t += ` a ${o2flujo} L/min`;
+      if (o2fio2) o2t += ` (FiO₂ ${o2fio2}%)`;
+      nota += o2t + '.\n';
+    }
+    nota += '\n';
+  }
+
+  // EVA
+  const evevaSw = document.getElementById('eveva-sw').classList.contains('on');
+  if (evevaSw) {
+    const eva = document.getElementById('ev-eva-slider')?.value || '0';
+    nota += `DOLOR: EVA ${eva}/10.\n\n`;
+  }
+
+  // Evolución
+  const evolSw = document.getElementById('evolucion-sw').classList.contains('on');
+  if (evolSw) {
+    const txt = (document.getElementById('ev-evolucion')?.value||'').trim();
+    if (txt) nota += `EVOLUCIÓN CLÍNICA: ${txt}\n\n`;
+  }
+
+  // Respuesta
+  const respSw = document.getElementById('respuesta-sw').classList.contains('on');
+  if (respSw) {
+    const txt = (document.getElementById('ev-respuesta')?.value||'').trim();
+    if (txt) nota += `RESPUESTA AL TRATAMIENTO: ${txt}\n\n`;
+  }
+
+  // Examen físico
+  const evefSw = document.getElementById('evef-sw').classList.contains('on');
+  if (evefSw) {
+    const segs = SEGMENTOS_EVOL.filter(s => evolSegActivos[s.id]).map(s => {
+      const isNormal = evolSegNormales[s.id];
+      const texto = isNormal ? s.normal : ((document.getElementById(`evs-text-${s.id}`)?.value||'').trim() || s.normal);
+      return `${s.label}: ${texto}.`;
+    });
+    if (segs.length) nota += `EXAMEN FÍSICO:\n${segs.join('\n')}\n\n`;
+  }
+
+  // Tratamientos
+  const ttoSw = document.getElementById('tto-sw').classList.contains('on');
+  if (ttoSw) {
+    const filas = getTtoFilas();
+    if (filas.length) {
+      nota += 'TRATAMIENTOS:\n';
+      filas.forEach(f => {
+        let linea = `· ${f.farmaco}`;
+        if (f.dosis) linea += ` ${f.dosis}`;
+        if (f.via) linea += ` vía ${f.via.toLowerCase()}`;
+        if (f.freq) linea += ` ${f.freq.toLowerCase()}`;
+        if (f.dias) linea += ` por ${f.dias} día${parseInt(f.dias)!==1?'s':''}`;
+        if (f.obs) linea += `. ${f.obs}`;
+        nota += linea + '.\n';
+      });
+      nota += '\n';
+    }
+  }
+
+  // Diagnóstico
+  const evdxSw = document.getElementById('evdx-sw').classList.contains('on');
+  if (evdxSw) {
+    const txt = (document.getElementById('ev-dx')?.value||'').trim();
+    if (txt) nota += `DIAGNÓSTICO: ${txt}\n\n`;
+  }
+
+  // Plan
+  const evplanSw = document.getElementById('evplan-sw').classList.contains('on');
+  if (evplanSw) {
+    const txt = (document.getElementById('ev-plan')?.value||'').trim();
+    if (txt) nota += `PLAN: ${txt}\n`;
+  }
+
+  nota = nota.trim();
+  document.getElementById('evol-nota-preview').textContent = nota || '(Sin contenido — active al menos una sección)';
+  document.getElementById('evol-nota-card').style.display = 'block';
+
+  // Guardar en historial
+  if (nota) {
+    const now = new Date();
+    const hora = now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    const dx = (document.getElementById('ev-dx')?.value||'').trim() ||
+               getChecked('#evol-curso-grid .check-item').join(', ') || 'Nota evolutiva';
+    evolNotas.unshift({ hora, dx, texto: nota });
+    actualizarHistorial();
+  }
+
+  document.getElementById('evol-nota-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function actualizarHistorial() {
+  const wrap = document.getElementById('evol-historial-wrap');
+  const hist = document.getElementById('evol-historial');
+  if (!evolNotas.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  hist.innerHTML = evolNotas.map((n, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light);">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);white-space:nowrap;">${n.hora}</div>
+      <div style="flex:1;font-size:13px;color:var(--text);font-weight:500;">${n.dx}</div>
+      <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;" onclick="copiarNotaHistorial(${i})">📋 Copiar</button>
+    </div>
+  `).join('');
+}
+
+function copiarNotaHistorial(i) {
+  navigator.clipboard.writeText(evolNotas[i].texto).then(() => {
+    alert(`Nota de las ${evolNotas[i].hora} copiada al portapapeles.`);
+  });
+}
+
+function copiarNotaEvol() {
+  const texto = document.getElementById('evol-nota-preview').textContent;
+  navigator.clipboard.writeText(texto).then(() => {
+    const ok = document.getElementById('evol-copy-ok');
+    ok.classList.add('show');
+    setTimeout(() => ok.classList.remove('show'), 2500);
+  });
+}
+
+function limpiarEvol() {
+  if (!confirm('¿Limpiar el formulario? El historial de notas se conserva.')) return;
+  // Reset toggles
+  ['estado','evsv','eveva','evolucion','respuesta','evef','tto','evdx','evplan'].forEach(id => {
+    document.getElementById(`${id}-sw`)?.classList.remove('on');
+    document.getElementById(`${id}-body`)?.classList.remove('open');
+  });
+  // Reset fields
+  ['ev-fc','ev-pas','ev-pad','ev-fr','ev-temp','ev-spo2','ev-hgt','ev-o2-flujo','ev-o2-fio2',
+   'ev-evolucion','ev-respuesta','ev-dx','ev-plan','evol-estado-otros'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('input[name="ev-o2"]').forEach(r => r.checked = false);
+  document.getElementById('ev-o2-detalle').style.display = 'none';
+  document.getElementById('ev-eva-slider').value = 0;
+  document.getElementById('ev-eva-val').textContent = '0';
+  document.querySelectorAll('#evol-curso-grid .check-item, #evol-hallazgos-grid .check-item').forEach(el => {
+    el.classList.remove('checked');
+    const inp = el.querySelector('input');
+    if (inp) inp.checked = false;
+  });
+  // Reset segmentos
+  evolSegActivos = {}; evolSegNormales = {};
+  document.getElementById('ev-segmentos-container').innerHTML = '';
+  // Reset tto
+  document.getElementById('tto-tabla').innerHTML = '';
+  evolFilaCount = 0;
+  // Hide nota
+  document.getElementById('evol-nota-card').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── RUN ──
+init();
+</script>
+</body>
+</html>
